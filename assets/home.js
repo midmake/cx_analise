@@ -1,4 +1,9 @@
 (() => {
+  const reviewCss = document.createElement('link');
+  reviewCss.rel = 'stylesheet';
+  reviewCss.href = 'assets/review.css';
+  document.head.appendChild(reviewCss);
+
   const data = window.CURRENT_MARKET_SUMMARY;
   if (!data) return;
 
@@ -88,8 +93,6 @@
     if (toolbar) toolbar.classList.toggle('toolbar-hidden-home', !!overviewActive);
   }
 
-  // Comparações de clubes devem sempre usar um único ano. A opção "Todos" foi removida
-  // para evitar gráficos que misturem períodos diferentes e gerem leitura enganosa.
   const yearSelect = $('#yearFilter');
   const enforceSingleYear = () => {
     if (!yearSelect) return;
