@@ -22,8 +22,12 @@
   const observer = new MutationObserver(() => normalizeYearLabels());
   observer.observe(document.body, { childList: true, subtree: true });
 
-  const extra = document.createElement('script');
-  extra.src = 'assets/source-history.js';
-  extra.defer = true;
-  document.body.appendChild(extra);
+  const history = document.createElement('script');
+  history.src = 'assets/source-history.js';
+  history.onload = () => {
+    const finalFix = document.createElement('script');
+    finalFix.src = 'assets/final-fix.js';
+    document.body.appendChild(finalFix);
+  };
+  document.body.appendChild(history);
 })();
