@@ -25,6 +25,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Rebuild historical Excel sources
+        shell: bash
+        run: |
+          mkdir -p downloads
+          cat source-files/arquivo-2024.part*.b64 | base64 --decode > downloads/PESQUISA_MENSALIDADES_NATACAO_2024.xlsx
+          cat source-files/arquivo-2025.part*.b64 | base64 --decode > downloads/VALORES_CLUBES.xlsx
+          echo "0d049814c51fc5c50487ce3cb77ec363afe1c4749b8a777cdf89f249b911e3a1  downloads/PESQUISA_MENSALIDADES_NATACAO_2024.xlsx" | sha256sum -c -
+          echo "b3738a2dc64aee236a5439d1e4473d057557d96607279895d5ad6ddd32f5896b  downloads/VALORES_CLUBES.xlsx" | sha256sum -c -
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
