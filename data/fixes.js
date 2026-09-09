@@ -16,12 +16,11 @@
     if (r.club === 'Grêmio Náutico Gaúcho') r.club = 'GNG';
 
     // As planilhas históricas registram os valores praticados na época do levantamento.
-    // Portanto, todo valor numérico das pesquisas anteriores é um valor histórico confirmado,
-    // não um dado provisório.
     if ((r.researchYear === 2024 || r.researchYear === 2025) && typeof r.value === 'number') {
       r.status = 'VALOR HISTÓRICO CONFIRMADO';
     }
 
+    // Valores atuais confirmados diretamente em páginas/documentos oficiais.
     if (r.researchYear === 2026 && r.club === 'Caixeiros Viajantes' && typeof r.value === 'number') {
       r.status = 'CONFIRMADO ATUAL';
     }
@@ -44,6 +43,16 @@
       r.status = 'CONFIRMADO ATUAL';
     }
 
+    if (
+      r.researchYear === 2026 &&
+      r.club === 'ACM' &&
+      typeof r.value === 'number' &&
+      String(r.source || '').includes('acm-rs.com.br')
+    ) {
+      r.status = 'CONFIRMADO ATUAL';
+    }
+
+    // Um valor explicitamente desatualizado só é retirado se não tiver sido revalidado acima.
     if (r.researchYear === 2026 && String(r.status || '').toUpperCase().includes('DESATUALIZADO')) {
       r.displayValue = r.value;
       r.value = null;
