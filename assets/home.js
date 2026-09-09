@@ -55,6 +55,34 @@
     `).join('');
   }
 
+  const referenceCard = document.querySelector('.current-reference-card');
+  const position = data.marketPosition;
+  if (referenceCard && position && !document.querySelector('.caixeiros-position-card')) {
+    const positionCard = document.createElement('article');
+    positionCard.className = 'card caixeiros-position-card';
+    positionCard.innerHTML = `
+      <div class="position-head">
+        <div>
+          <span class="eyebrow dark">POSIÇÃO DO CAIXEIROS</span>
+          <h2>Como o clube está em relação ao mercado</h2>
+        </div>
+        <span class="confirmed-badge">BASE CONFIRMADA</span>
+      </div>
+      <div class="position-grid">
+        ${position.items.map(item => `
+          <div class="position-item">
+            <span class="position-label">${item.label}</span>
+            <div class="position-main"><strong>${item.caixeiros}</strong><b>${item.position}</b></div>
+            <span class="position-comparison">${item.comparison}</span>
+            <small>${item.base}</small>
+          </div>
+        `).join('')}
+      </div>
+      <p class="position-note">${position.note}</p>
+    `;
+    referenceCard.insertAdjacentElement('afterend', positionCard);
+  }
+
   const tbody = $('#currentCompetitorsTable tbody');
   if (tbody) {
     tbody.innerHTML = data.competitors.map(c => {
@@ -93,6 +121,7 @@
     if (toolbar) toolbar.classList.toggle('toolbar-hidden-home', !!overviewActive);
   }
 
+  // Não permitimos misturar anos no filtro de comparação. A evolução anual tem aba própria.
   const yearSelect = $('#yearFilter');
   const enforceSingleYear = () => {
     if (!yearSelect) return;
@@ -110,14 +139,18 @@
   }
   $('#resetFilters')?.addEventListener('click', () => setTimeout(enforceSingleYear, 0));
 
-  const compareFrame = document.querySelector('#compare .chart-frame');
-  if (compareFrame && !document.querySelector('#compare .chart-note')) {
-    compareFrame.insertAdjacentHTML('afterend', '<p class="chart-note"><strong>Leitura:</strong> o comparativo mostra um único ano por vez. Para histórico, use a aba Evolução de valores.</p>');
+  // O gráfico genérico de comparação foi retirado: alguns clubes possuem mais de um plano
+  // válido no mesmo recorte. A tabela abaixo preserva todos os valores sem escolher um arbitrariamente.
+  const compareChartCard = document.querySelector('#compare .chart-card');
+  if (compareChartCard) compareChartCard.classList.add('audit-hidden');
+  const compareTableCard = document.querySelector('#compare .card:not(.chart-card)');
+  if (compareTableCard && !document.querySelector('#compare .comparison-rule')) {
+    compareTableCard.querySelector('.section-head')?.insertAdjacentHTML('afterend', '<p class="comparison-rule"><strong>Regra:</strong> um ano por vez. A tabela mantém todos os planos confirmados; nenhum valor é escolhido ou estimado automaticamente.</p>');
   }
 
   const evolutionFrame = document.querySelector('#evolution .chart-frame');
   if (evolutionFrame && !document.querySelector('#evolution .chart-note')) {
-    evolutionFrame.insertAdjacentHTML('afterend', '<p class="chart-note"><strong>Legenda:</strong> cada ponto representa o valor praticado naquele ano; o gráfico não mistura preços de anos diferentes.</p>');
+    evolutionFrame.insertAdjacentHTML('afterend', '<p class="chart-note"><strong>Legenda:</strong> 2023 = valores da pesquisa 2024 · 2024 = valores da pesquisa 2025 · 2025 = valores da pesquisa atual. Cada ponto é um valor registrado naquele período.</p>');
   }
 
   tabs.forEach(tab => tab.addEventListener('click', () => setTimeout(syncToolbar, 0)));
