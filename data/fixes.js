@@ -17,21 +17,17 @@
     const sourceFileYear = Number(r.year);
     const valueYear = yearMap[sourceFileYear];
 
-    // Mantemos os dois conceitos separados no dado.
     r.sourceFileYear = sourceFileYear;
-    r.researchYear = sourceFileYear; // compatibilidade com o restante do código
+    r.researchYear = sourceFileYear;
     r.valueYear = valueYear || sourceFileYear;
     r.year = r.valueYear;
 
     if (r.club === 'Grêmio Náutico Gaúcho') r.club = 'GNG';
 
-    // Os arquivos históricos registram os valores praticados na época.
     if ((r.sourceFileYear === 2024 || r.sourceFileYear === 2025) && typeof r.value === 'number') {
       r.status = 'VALOR HISTÓRICO CONFIRMADO';
     }
 
-    // Arquivo 2026 em elaboração: valores atuais de 2025 confirmados diretamente
-    // em páginas/documentos oficiais ou na página oficial do próprio Caixeiros.
     if (r.sourceFileYear === 2026 && r.club === 'Caixeiros Viajantes' && typeof r.value === 'number') {
       r.status = 'CONFIRMADO ATUAL';
     }
@@ -45,11 +41,13 @@
       r.status = 'CONFIRMADO ATUAL';
     }
 
+    // GNG: fonte oficial não basta para revalidar tabela explicitamente marcada como desatualizada.
     if (
       r.sourceFileYear === 2026 &&
       r.club === 'GNG' &&
       typeof r.value === 'number' &&
-      String(r.source || '').includes('gngaucho.com.br')
+      String(r.source || '').includes('gngaucho.com.br') &&
+      !String(r.status || '').toUpperCase().includes('DESATUALIZADO')
     ) {
       r.status = 'CONFIRMADO ATUAL';
     }
@@ -63,7 +61,6 @@
       r.status = 'CONFIRMADO ATUAL';
     }
 
-    // Um valor explicitamente desatualizado só é retirado se não tiver sido revalidado acima.
     if (r.sourceFileYear === 2026 && String(r.status || '').toUpperCase().includes('DESATUALIZADO')) {
       r.displayValue = r.value;
       r.value = null;
