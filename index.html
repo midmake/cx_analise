@@ -16,56 +16,78 @@
         <h1>Análise de Mercado</h1>
         <p class="byline"><strong>Rafael Bortolin</strong> · Assistente Administrativo</p>
         <p class="subtitle">Pesquisa, levantamento, estruturação e análise comparativa de mercado</p>
+        <p class="year-logic" id="yearLogic"></p>
       </div>
       <div class="hero__badge"><span>Atualização</span><strong id="updatedAt">09/09/2026</strong></div>
     </div>
   </header>
+
   <main class="shell">
     <section class="toolbar card">
-      <div class="filter"><label for="yearFilter">Ano</label><select id="yearFilter"></select></div>
+      <div class="filter"><label for="yearFilter">Ano dos valores</label><select id="yearFilter"></select></div>
       <div class="filter"><label for="clubFilter">Clube</label><select id="clubFilter"></select></div>
       <div class="filter"><label for="modalityFilter">Modalidade</label><select id="modalityFilter"></select></div>
       <div class="filter"><label for="audienceFilter">Público</label><select id="audienceFilter"></select></div>
       <div class="filter"><label for="frequencyFilter">Frequência</label><select id="frequencyFilter"></select></div>
       <button id="resetFilters" class="btn">Limpar filtros</button>
     </section>
+
     <nav class="tabs">
       <button class="tab active" data-tab="overview">Visão executiva</button>
       <button class="tab" data-tab="compare">Comparar clubes</button>
-      <button class="tab" data-tab="evolution">Evolução anual</button>
+      <button class="tab" data-tab="evolution">Evolução de valores</button>
       <button class="tab" data-tab="data">Dados & fontes</button>
     </nav>
+
     <section id="overview" class="tab-panel active">
-      <div id="warning2024" class="notice warning hidden"></div>
       <div class="kpi-grid">
-        <article class="kpi card"><span>Caixeiros · preço selecionado</span><strong id="kpiCaix">—</strong><small id="kpiCaixLabel">Ajuste os filtros para comparar.</small></article>
-        <article class="kpi card"><span>Mediana do mercado</span><strong id="kpiMedian">—</strong><small>Considera somente valores numéricos comparáveis.</small></article>
-        <article class="kpi card"><span>Posição do Caixeiros</span><strong id="kpiPosition">—</strong><small id="kpiPositionLabel">Diferença percentual vs. mediana.</small></article>
-        <article class="kpi card"><span>Concorrentes com preço</span><strong id="kpiSample">—</strong><small>Amostra pública disponível no recorte.</small></article>
+        <article class="kpi card"><span>Caixeiros · preço selecionado</span><strong id="kpiCaix">Carregando</strong><small id="kpiCaixLabel"></small></article>
+        <article class="kpi card"><span>Mediana do mercado</span><strong id="kpiMedian">Carregando</strong><small>Somente dados numéricos confirmados.</small></article>
+        <article class="kpi card"><span>Posição do Caixeiros</span><strong id="kpiPosition">Carregando</strong><small id="kpiPositionLabel"></small></article>
+        <article class="kpi card"><span>Concorrentes confirmados</span><strong id="kpiSample">0</strong><small>Com preço comparável no recorte.</small></article>
       </div>
-      <div class="grid-2">
-        <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">POSIÇÃO COMPETITIVA</span><h2>Ranking de preços</h2></div><span class="hint">Clique em uma barra para selecionar o clube.</span></div><canvas id="rankingChart" height="300"></canvas><div id="rankingFallback" class="fallback hidden"></div></article>
-        <article class="card"><div class="section-head"><div><span class="eyebrow dark">LEITURA GERENCIAL</span><h2>O que os números dizem</h2></div></div><div id="executiveReading" class="insights"></div></article>
+
+      <div class="grid-2 compact-grid">
+        <article class="card chart-card">
+          <div class="section-head"><div><span class="eyebrow dark">POSIÇÃO COMPETITIVA</span><h2>Ranking de preços</h2></div><span class="hint">Gráfico compacto para leitura em uma tela.</span></div>
+          <div class="chart-frame"><canvas id="rankingChart"></canvas></div>
+          <div id="rankingFallback" class="fallback hidden"></div>
+        </article>
+        <article class="card">
+          <div class="section-head"><div><span class="eyebrow dark">LEITURA GERENCIAL</span><h2>O que os números dizem</h2></div></div>
+          <div id="executiveReading" class="insights"></div>
+        </article>
       </div>
-      <article class="card"><div class="section-head"><div><span class="eyebrow dark">CLUBES</span><h2>Acesso rápido</h2></div><span class="hint">Selecione um clube para abrir seus valores.</span></div><div id="clubCards" class="club-grid"></div></article>
+
+      <article class="card summary-card">
+        <div class="section-head"><div><span class="eyebrow dark">RESUMO</span><h2>Valores em tabela simplificada</h2></div><span class="hint">Clube, valor e diferença em relação ao Caixeiros.</span></div>
+        <div class="table-wrap compact-table"><table id="summaryTable"><thead><tr><th>Clube</th><th>Valor</th><th>Diferença vs. Caixeiros</th><th>Situação</th></tr></thead><tbody></tbody></table></div>
+      </article>
+
+      <article class="card"><div class="section-head"><div><span class="eyebrow dark">CLUBES</span><h2>Acesso rápido</h2></div><span class="hint">Selecione um clube para abrir seus dados.</span></div><div id="clubCards" class="club-grid"></div></article>
     </section>
+
     <section id="compare" class="tab-panel">
-      <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">BENCHMARK</span><h2>Comparativo entre clubes</h2></div><span class="hint">O gráfico respeita os filtros acima.</span></div><canvas id="compareChart" height="360"></canvas><div id="compareFallback" class="fallback hidden"></div></article>
+      <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">BENCHMARK</span><h2>Comparativo entre clubes</h2></div></div><div class="chart-frame compare-frame"><canvas id="compareChart"></canvas></div><div id="compareFallback" class="fallback hidden"></div></article>
       <article class="card"><div class="section-head"><div><span class="eyebrow dark">DETALHAMENTO</span><h2>Valores comparáveis</h2></div></div><div class="table-wrap"><table id="compareTable"><thead><tr><th>Clube</th><th>Modalidade</th><th>Categoria</th><th>Público</th><th>Frequência</th><th>Valor</th><th>Status</th></tr></thead><tbody></tbody></table></div></article>
     </section>
+
     <section id="evolution" class="tab-panel">
-      <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">2024 · 2025 · 2026</span><h2>Evolução anual</h2></div><span class="hint">2024 permanece marcado como provisório até validação.</span></div><canvas id="evolutionChart" height="360"></canvas><div id="evolutionFallback" class="fallback hidden"></div></article>
+      <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">HISTÓRICO</span><h2>Evolução dos valores</h2></div><span class="hint">2023 = pesquisa 2024 · 2024 = pesquisa 2025 · 2026 = pesquisa atual.</span></div><div class="chart-frame evolution-frame"><canvas id="evolutionChart"></canvas></div><div id="evolutionFallback" class="fallback hidden"></div></article>
       <article class="card"><div class="section-head"><div><span class="eyebrow dark">VARIAÇÃO</span><h2>Histórico do recorte</h2></div></div><div id="evolutionSummary" class="evolution-summary"></div></article>
     </section>
+
     <section id="data" class="tab-panel">
       <div class="grid-2">
         <article class="card"><div class="section-head"><div><span class="eyebrow dark">PENDÊNCIAS</span><h2>Precisa contato</h2></div></div><div id="contactsList" class="contact-list"></div></article>
-        <article class="card"><div class="section-head"><div><span class="eyebrow dark">AUDITORIA</span><h2>Fontes e confiabilidade</h2></div></div><p class="muted">Cada registro de 2026 mantém sua fonte e status. Isso permite defender o levantamento em reunião e atualizar somente o que estiver pendente.</p><div id="sourceStats" class="source-stats"></div></article>
+        <article class="card"><div class="section-head"><div><span class="eyebrow dark">AUDITORIA</span><h2>Fontes e confiabilidade</h2></div></div><p class="muted">Valores sem confirmação não são estimados: ficam identificados como aguardando retorno do Administrativo — Setor de Esportes.</p><div id="sourceStats" class="source-stats"></div></article>
       </div>
-      <article class="card"><div class="section-head"><div><span class="eyebrow dark">BASE COMPLETA</span><h2>Dados filtrados</h2></div><div class="section-actions"><button id="exportCsv" class="btn secondary">Exportar CSV do recorte</button></div></div><div class="table-wrap"><table id="dataTable"><thead><tr><th>Ano</th><th>Clube</th><th>Modalidade</th><th>Tipo/Categoria</th><th>Público</th><th>Frequência</th><th>Valor</th><th>Status</th><th>Fonte</th></tr></thead><tbody></tbody></table></div></article>
+      <article class="card"><div class="section-head"><div><span class="eyebrow dark">BASE COMPLETA</span><h2>Dados filtrados</h2></div><div class="section-actions"><button id="exportCsv" class="btn secondary">Exportar CSV do recorte</button></div></div><div class="table-wrap"><table id="dataTable"><thead><tr><th>Ano dos valores</th><th>Pesquisa de origem</th><th>Clube</th><th>Modalidade</th><th>Tipo/Categoria</th><th>Público</th><th>Frequência</th><th>Valor / situação</th><th>Status</th><th>Fonte</th></tr></thead><tbody></tbody></table></div></article>
     </section>
   </main>
+
   <footer><strong>Estudo desenvolvido e mantido por Rafael Bortolin — Assistente Administrativo</strong><span>Inteligência de mercado aplicada às atividades esportivas e aquáticas.</span></footer>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="data/bootstrap.js"></script>
   <script src="data/records-1.js"></script>
