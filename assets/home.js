@@ -7,6 +7,34 @@
   const data = window.CURRENT_MARKET_SUMMARY;
   if (!data) return;
 
+  // Resumo executivo deliberadamente curto: só comparações equivalentes entram no ranking.
+  data.marketPosition = {
+    note: '1º = menor mensalidade. Só entram comparações com público e frequência equivalentes. Valores confirmados sem classificação equivalente continuam na tabela, mas ficam fora do ranking.',
+    items: [
+      {
+        label: 'Natação 2x · Sócio',
+        caixeiros: 'R$ 170',
+        position: '3º de 5',
+        comparison: 'Mediana concorrentes: R$ 163 · Caixeiros 4,3% acima',
+        base: 'GNG R$ 148 · ACM R$ 152 · Recreio R$ 174 · GNU R$ 249'
+      },
+      {
+        label: 'Hidroginástica 2x · Sócio',
+        caixeiros: 'R$ 170',
+        position: 'Dentro da faixa',
+        comparison: 'Concorrentes confirmados: R$ 124 a R$ 204',
+        base: 'ACM R$ 124 · GNG R$ 163 · Recreio Dia R$ 151 / Noite R$ 204. GNU publica plano mensal sem frequência equivalente.'
+      },
+      {
+        label: 'Vôlei escola 2x · Sócio',
+        caixeiros: 'R$ 170',
+        position: '2º de 3',
+        comparison: 'Mediana concorrentes: R$ 153 · Caixeiros 11,1% acima',
+        base: 'GNG R$ 109 · GNU R$ 197. Recreio R$ 147 está confirmado, mas fora do ranking porque a tabela não classifica a categoria como escola equivalente.'
+      }
+    ]
+  };
+
   const $ = (s) => document.querySelector(s);
   const pending = data.pendingLabel || 'Aguardando dados do Administrativo — Setor de Esportes';
 
@@ -64,7 +92,7 @@
       <div class="position-head">
         <div>
           <span class="eyebrow dark">POSIÇÃO DO CAIXEIROS</span>
-          <h2>Como o clube está em relação ao mercado</h2>
+          <h2>Caixeiros Viajantes em relação ao mercado</h2>
         </div>
         <span class="confirmed-badge">BASE CONFIRMADA</span>
       </div>
@@ -80,7 +108,7 @@
       </div>
       <p class="position-note">${position.note}</p>
     `;
-    referenceCard.insertAdjacentElement('afterend', positionCard);
+    referenceCard.insertAdjacentElement('beforebegin', positionCard);
   }
 
   const tbody = $('#currentCompetitorsTable tbody');
@@ -121,7 +149,7 @@
     if (toolbar) toolbar.classList.toggle('toolbar-hidden-home', !!overviewActive);
   }
 
-  // Não permitimos misturar anos no filtro de comparação. A evolução anual tem aba própria.
+  // Comparações são sempre de um único ano. Histórico tem aba própria.
   const yearSelect = $('#yearFilter');
   const enforceSingleYear = () => {
     if (!yearSelect) return;
@@ -139,8 +167,8 @@
   }
   $('#resetFilters')?.addEventListener('click', () => setTimeout(enforceSingleYear, 0));
 
-  // O gráfico genérico de comparação foi retirado: alguns clubes possuem mais de um plano
-  // válido no mesmo recorte. A tabela abaixo preserva todos os valores sem escolher um arbitrariamente.
+  // O gráfico genérico de comparação fica oculto: alguns clubes têm múltiplos planos válidos
+  // no mesmo recorte e escolher um deles automaticamente criaria uma comparação enganosa.
   const compareChartCard = document.querySelector('#compare .chart-card');
   if (compareChartCard) compareChartCard.classList.add('audit-hidden');
   const compareTableCard = document.querySelector('#compare .card:not(.chart-card)');
