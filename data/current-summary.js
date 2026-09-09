@@ -4,6 +4,7 @@ window.CURRENT_MARKET_SUMMARY = {
   pendingLabel: 'Aguardando dados do Administrativo — Setor de Esportes',
   reference: {
     club: 'Caixeiros Viajantes',
+    status: 'CONFIRMADO ATUAL',
     aquatics: [
       {
         activity: 'Natação / Hidroginástica / Hidrobike',
@@ -43,10 +44,11 @@ window.CURRENT_MARKET_SUMMARY = {
       hidro: 'Sócio R$ 256 | Não sócio R$ 539',
       equipeNatacao: 'Master: sócio R$ 214 · SAE R$ 508 | Pré-Master: R$ 159 · SAE R$ 238',
       volei: 'Escola 2x: sócio R$ 197 | não sócio R$ 295',
-      status: 'Preço público localizado',
+      status: 'CONFIRMADO ATUAL',
       source: 'https://www.gnu.com.br/site/esporte/natacao-1',
       source2: 'https://www.gnu.com.br/site/esporte/hidroginastica',
-      source3: 'https://www.gnu.com.br/site/esporte/volei-1'
+      source3: 'https://www.gnu.com.br/site/esporte/volei-1',
+      source4: 'https://www.gnu.com.br/site/esportes/esporte-master'
     },
     {
       club: 'SOGIPA',
@@ -54,7 +56,7 @@ window.CURRENT_MARKET_SUMMARY = {
       hidro: null,
       equipeNatacao: null,
       volei: null,
-      status: 'Natação, hidroginástica e vôlei confirmados; mensalidades não ficaram disponíveis de forma estática para extração.',
+      status: 'AGUARDANDO DADOS',
       source: 'https://www.sogipa.com.br/site/horarios-das-escolas'
     },
     {
@@ -63,7 +65,7 @@ window.CURRENT_MARKET_SUMMARY = {
       hidro: null,
       equipeNatacao: null,
       volei: null,
-      status: 'Natação, hidroginástica e vôlei estão no site; valores não publicados.',
+      status: 'AGUARDANDO DADOS',
       source: 'https://cpg.com.br/site/esporte-modalidades?id=14&mod=Nata%C3%A7%C3%A3o',
       source2: 'https://cpg.com.br/site/esporte-modalidades?id=10&mod=Hidrogin%C3%A1stica',
       source3: 'https://cpg.com.br/site/esporte-modalidades?id=8&mod=V%C3%B4lei'
@@ -73,8 +75,8 @@ window.CURRENT_MARKET_SUMMARY = {
       natacao: null,
       hidro: null,
       equipeNatacao: null,
-      volei: 'Não localizada como oferta pública confirmada',
-      status: 'Não foi localizado preço oficial público atual. Valores de terceiros não foram usados.',
+      volei: null,
+      status: 'AGUARDANDO DADOS',
       source: null
     },
     {
@@ -82,17 +84,17 @@ window.CURRENT_MARKET_SUMMARY = {
       natacao: null,
       hidro: null,
       equipeNatacao: null,
-      volei: 'Não localizada no site',
-      status: 'Natação e hidroginástica confirmadas; preços não publicados.',
+      volei: null,
+      status: 'AGUARDANDO DADOS',
       source: 'https://stillocb.com.br/'
     },
     {
       club: 'ACM',
       natacao: 'Associado: 1x R$ 80 · 2x R$ 152 · 3x R$ 219 | Light: R$ 152 · R$ 292 · R$ 422 | Não associado: consultar',
-      hidro: 'Associado: 1x R$ 68 · 2x R$ 124 · 3x R$ 175 | Light: R$ 152 · R$ 292 · R$ 357 | Não associado: consultar',
+      hidro: 'Associado: 1x R$ 68 · 2x R$ 124 · 3x R$ 175 | Light: R$ 152 · R$ 292 · R$ 357',
       equipeNatacao: null,
-      volei: 'Vôlei adulto misto disponível para associado; Associado Light deve consultar valor',
-      status: 'Preços públicos parciais localizados',
+      volei: null,
+      status: 'CONFIRMADO ATUAL — PARCIAL',
       source: 'https://www.acm-rs.com.br/atividade/natacao-adulto/',
       source2: 'https://www.acm-rs.com.br/atividade/hidroginastica/',
       source3: 'https://www.acm-rs.com.br/atividade/volei/'
@@ -102,8 +104,8 @@ window.CURRENT_MARKET_SUMMARY = {
       natacao: null,
       hidro: null,
       equipeNatacao: null,
-      volei: 'Modalidade terceirizada com 20% de desconto para associado; valor-base não publicado',
-      status: 'Site confirma atividades e aponta tabela/secretaria, mas os valores numéricos não estão em texto público.',
+      volei: null,
+      status: 'AGUARDANDO DADOS',
       source: 'https://www.geraldosantana.com.br/natacao-hidrobike',
       source2: 'https://www.geraldosantana.com.br/volei'
     },
@@ -111,12 +113,13 @@ window.CURRENT_MARKET_SUMMARY = {
       club: 'GNG',
       natacao: 'Associado: 1x R$ 109 · 2x R$ 148 · 3x R$ 185 · 4x R$ 222 · 5x R$ 255 | Não associado: R$ 198 · R$ 268 · R$ 335 · R$ 402 · R$ 463',
       hidro: 'Associado: 1x R$ 120 · 2x R$ 163 · 3x R$ 203 · 4x R$ 244 · 5x R$ 281 | Não associado: R$ 218 · R$ 295 · R$ 369 · R$ 443 · R$ 510',
-      equipeNatacao: 'Equipe de base: sócio R$ 170 · não sócio R$ 352 | Master/Águas Abertas: sócio R$ 77 · não sócio R$ 154',
+      equipeNatacao: 'Master/Águas Abertas: sócio R$ 170 · não sócio R$ 352 | Equipe de Base: sócio R$ 77 · não sócio R$ 154',
       volei: 'Escola: sócio 1x R$ 98 · 2x R$ 109 | não sócio 1x R$ 169 · 2x R$ 219',
-      status: 'Preço público localizado',
+      status: 'CONFIRMADO ATUAL',
       source: 'https://gngaucho.com.br/manutencao/public/uploads/esporte/horario/12511420250130679b75c20c35e.pdf',
       source2: 'https://gngaucho.com.br/manutencao/public/uploads/esporte/horario/13195320260204698347795d5a6.pdf',
-      source3: 'https://gngaucho.com.br/manutencao/public/uploads/esporte/horario/2009012026031269b31d5d00a14.pdf'
+      source3: 'https://gngaucho.com.br/manutencao/public/uploads/esporte/horario/2009012026031269b31d5d00a14.pdf',
+      source4: 'https://gngaucho.com.br/manutencao/public/uploads/esporte/horario/20490220251201692dff3e05911.pdf'
     },
     {
       club: 'Brilhante',
@@ -124,7 +127,7 @@ window.CURRENT_MARKET_SUMMARY = {
       hidro: null,
       equipeNatacao: null,
       volei: null,
-      status: 'Natação, equipe de natação, hidroginástica e vôlei confirmados; arquivo de valores não ficou publicamente legível para extração.',
+      status: 'AGUARDANDO DADOS',
       source: 'https://clubebrilhante.com.br/esporte/natacao/918',
       source2: 'https://www.clubebrilhante.com.br/esporte/hidroginastica/913',
       source3: 'https://clubebrilhante.com.br/esportes/volei/935'
@@ -134,8 +137,8 @@ window.CURRENT_MARKET_SUMMARY = {
       natacao: 'Adulto P25: 1x R$ 131 · 2x R$ 174 · 3x R$ 234 · 4x R$ 250 · 5x R$ 269 | P18: 1x R$ 122 · 2x R$ 162',
       hidro: 'Dia: 1x R$ 123 · 2x R$ 151 · 3x R$ 203 | Noite: 1x R$ 144 · 2x R$ 204 · 3x R$ 253',
       equipeNatacao: 'Mirim/Petiz R$ 167 · Infantil/Juvenil/Júnior R$ 167 · Master Livre R$ 217',
-      volei: 'Categorias de formação e Pré-Equipe: R$ 147',
-      status: 'Tabela oficial de serviços localizada',
+      volei: 'Categorias de voleibol da tabela oficial: R$ 147,00 (inclui Pré-Equipe)',
+      status: 'CONFIRMADO ATUAL',
       source: 'https://www.recreiodajuventude.com.br/oficial/2023/userfiles/ckeditor/valores_dos_servicos_2026a_1_2_1.pdf'
     }
   ]
