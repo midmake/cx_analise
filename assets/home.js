@@ -50,9 +50,6 @@
     `).join('');
   }
 
-  const refStatus = $('#referenceStatus');
-  if (refStatus) refStatus.innerHTML = statusBadge(ref.status);
-
   const tbody = $('#currentCompetitorsTable tbody');
   if (tbody) {
     tbody.innerHTML = data.competitors.map(c => {
@@ -76,7 +73,9 @@
   }
 
   const refSources = $('#referenceSources');
-  if (refSources) refSources.innerHTML = sourceLinks(ref);
+  if (refSources) {
+    refSources.innerHTML = `<div class="reference-status">${statusBadge(ref.status)}</div>${sourceLinks(ref)}`;
+  }
 
   const checked = $('#currentCheckedAt');
   if (checked) checked.textContent = `Verificação pública atualizada em ${data.checkedAt}`;
@@ -87,6 +86,35 @@
   function syncToolbar() {
     const overviewActive = document.querySelector('.tab[data-tab="overview"]')?.classList.contains('active');
     if (toolbar) toolbar.classList.toggle('toolbar-hidden-home', !!overviewActive);
+  }
+
+  // Comparações de clubes devem sempre usar um único ano. A opção "Todos" foi removida
+  // para evitar gráficos que misturem períodos diferentes e gerem leitura enganosa.
+  const yearSelect = $('#yearFilter');
+  const enforceSingleYear = () => {
+    if (!yearSelect) return;
+    [...yearSelect.options].forEach(option => {
+      if (option.value === 'Todos') option.remove();
+    });
+    if (!yearSelect.value || yearSelect.value === 'Todos') {
+      yearSelect.value = '2025';
+      yearSelect.dispatchEvent(new Event('change'));
+    }
+  };
+  if (yearSelect) {
+    new MutationObserver(enforceSingleYear).observe(yearSelect, { childList: true });
+    enforceSingleYear();
+  }
+  $('#resetFilters')?.addEventListener('click', () => setTimeout(enforceSingleYear, 0));
+
+  const compareFrame = document.querySelector('#compare .chart-frame');
+  if (compareFrame && !document.querySelector('#compare .chart-note')) {
+    compareFrame.insertAdjacentHTML('afterend', '<p class="chart-note"><strong>Leitura:</strong> o comparativo mostra um único ano por vez. Para histórico, use a aba Evolução de valores.</p>');
+  }
+
+  const evolutionFrame = document.querySelector('#evolution .chart-frame');
+  if (evolutionFrame && !document.querySelector('#evolution .chart-note')) {
+    evolutionFrame.insertAdjacentHTML('afterend', '<p class="chart-note"><strong>Legenda:</strong> cada ponto representa o valor praticado naquele ano; o gráfico não mistura preços de anos diferentes.</p>');
   }
 
   tabs.forEach(tab => tab.addEventListener('click', () => setTimeout(syncToolbar, 0)));
