@@ -24,7 +24,7 @@
 
   <main class="shell">
     <section class="toolbar card">
-      <div class="filter"><label for="yearFilter">Ano dos valores</label><select id="yearFilter"></select></div>
+      <div class="filter"><label for="yearFilter">Ano da mensalidade</label><select id="yearFilter"></select></div>
       <div class="filter"><label for="clubFilter">Clube</label><select id="clubFilter"></select></div>
       <div class="filter"><label for="modalityFilter">Modalidade</label><select id="modalityFilter"></select></div>
       <div class="filter"><label for="audienceFilter">Público</label><select id="audienceFilter"></select></div>
@@ -43,16 +43,16 @@
       <div class="home-simple">
         <div class="home-heading">
           <div>
-            <span class="eyebrow dark">PESQUISA DE MERCADO 2026</span>
-            <h2>Valores atuais — Atividades Aquáticas e Vôlei</h2>
-            <p>Base para análise e definição dos valores a serem praticados pelo clube.</p>
+            <span class="eyebrow dark">ARQUIVO 2026 — EM ELABORAÇÃO</span>
+            <h2>Valores atuais de 2025 — Atividades Aquáticas e Vôlei</h2>
+            <p>Levantamento atual que compõe o arquivo 2026 e serve de base para definição dos próximos valores do clube.</p>
           </div>
           <span class="checked-at" id="currentCheckedAt"></span>
         </div>
 
         <article class="card current-reference-card">
           <div class="section-head">
-            <div><span class="eyebrow dark">REFERÊNCIA INTERNA</span><h2>Caixeiros Viajantes — valores atuais</h2></div>
+            <div><span class="eyebrow dark">REFERÊNCIA INTERNA</span><h2>Caixeiros Viajantes — mensalidades atuais de 2025</h2></div>
             <div class="source-links" id="referenceSources"></div>
           </div>
           <div class="current-two-cols">
@@ -69,8 +69,8 @@
 
         <article class="card competitors-current-card">
           <div class="section-head">
-            <div><span class="eyebrow dark">CONCORRENTES DA PESQUISA ANTERIOR</span><h2>Valores atuais dos concorrentes</h2></div>
-            <span class="hint">Sem estimativas: quando não há preço público confirmado, o item fica aguardando retorno do setor.</span>
+            <div><span class="eyebrow dark">CONCORRENTES</span><h2>Mensalidades atuais de 2025 dos concorrentes</h2></div>
+            <span class="hint">Sem estimativas: quando não há preço confirmado, o item fica aguardando retorno do setor.</span>
           </div>
           <div class="table-wrap current-market-wrap">
             <table id="currentCompetitorsTable" class="current-market-table">
@@ -103,7 +103,7 @@
     </section>
 
     <section id="evolution" class="tab-panel">
-      <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">HISTÓRICO</span><h2>Evolução dos valores</h2></div><span class="hint">2023 = pesquisa 2024 · 2024 = pesquisa 2025 · 2025 = pesquisa atual 2026.</span></div><div class="chart-frame evolution-frame"><canvas id="evolutionChart"></canvas></div><div id="evolutionFallback" class="fallback hidden"></div></article>
+      <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">HISTÓRICO</span><h2>Evolução das mensalidades</h2></div><span class="hint">Mensalidades 2023 = arquivo 2024 · mensalidades 2024 = arquivo 2025 · mensalidades 2025 = arquivo 2026 em elaboração.</span></div><div class="chart-frame evolution-frame"><canvas id="evolutionChart"></canvas></div><div id="evolutionFallback" class="fallback hidden"></div></article>
       <article class="card"><div class="section-head"><div><span class="eyebrow dark">VARIAÇÃO</span><h2>Histórico do recorte</h2></div></div><div id="evolutionSummary" class="evolution-summary"></div></article>
     </section>
 
@@ -112,7 +112,7 @@
         <article class="card"><div class="section-head"><div><span class="eyebrow dark">PENDÊNCIAS</span><h2>Precisa contato</h2></div></div><div id="contactsList" class="contact-list"></div></article>
         <article class="card"><div class="section-head"><div><span class="eyebrow dark">AUDITORIA</span><h2>Fontes e confiabilidade</h2></div></div><p class="muted">Valores sem confirmação não são estimados: ficam identificados como aguardando retorno do Administrativo — Setor de Esportes.</p><div id="sourceStats" class="source-stats"></div></article>
       </div>
-      <article class="card"><div class="section-head"><div><span class="eyebrow dark">BASE COMPLETA</span><h2>Dados filtrados</h2></div><div class="section-actions"><button id="exportCsv" class="btn secondary">Exportar CSV do recorte</button></div></div><div class="table-wrap"><table id="dataTable"><thead><tr><th>Ano dos valores</th><th>Pesquisa de origem</th><th>Clube</th><th>Modalidade</th><th>Tipo/Categoria</th><th>Público</th><th>Frequência</th><th>Valor / situação</th><th>Status</th><th>Fonte</th></tr></thead><tbody></tbody></table></div></article>
+      <article class="card"><div class="section-head"><div><span class="eyebrow dark">BASE COMPLETA</span><h2>Dados filtrados</h2></div><div class="section-actions"><button id="exportCsv" class="btn secondary">Exportar CSV do recorte</button></div></div><div class="table-wrap"><table id="dataTable"><thead><tr><th>Ano da mensalidade</th><th>Arquivo de origem</th><th>Clube</th><th>Modalidade</th><th>Tipo/Categoria</th><th>Público</th><th>Frequência</th><th>Valor / situação</th><th>Status</th><th>Fonte</th></tr></thead><tbody></tbody></table></div></article>
     </section>
   </main>
 
@@ -131,5 +131,6 @@
   <script src="data/current-summary.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/home.js"></script>
+  <script src="assets/year-display.js"></script>
 </body>
 </html>
