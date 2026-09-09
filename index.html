@@ -33,38 +33,68 @@
     </section>
 
     <nav class="tabs">
-      <button class="tab active" data-tab="overview">Visão executiva</button>
+      <button class="tab active" data-tab="overview">Valores atuais</button>
       <button class="tab" data-tab="compare">Comparar clubes</button>
       <button class="tab" data-tab="evolution">Evolução de valores</button>
       <button class="tab" data-tab="data">Dados & fontes</button>
     </nav>
 
     <section id="overview" class="tab-panel active">
-      <div class="kpi-grid">
-        <article class="kpi card"><span>Caixeiros · preço selecionado</span><strong id="kpiCaix">Carregando</strong><small id="kpiCaixLabel"></small></article>
-        <article class="kpi card"><span>Mediana do mercado</span><strong id="kpiMedian">Carregando</strong><small>Somente dados numéricos confirmados.</small></article>
-        <article class="kpi card"><span>Posição do Caixeiros</span><strong id="kpiPosition">Carregando</strong><small id="kpiPositionLabel"></small></article>
-        <article class="kpi card"><span>Concorrentes confirmados</span><strong id="kpiSample">0</strong><small>Com preço comparável no recorte.</small></article>
+      <div class="home-simple">
+        <div class="home-heading">
+          <div>
+            <span class="eyebrow dark">PESQUISA DE MERCADO 2026</span>
+            <h2>Valores atuais — Atividades Aquáticas e Vôlei</h2>
+            <p>Base para análise e definição dos valores a serem praticados pelo clube.</p>
+          </div>
+          <span class="checked-at" id="currentCheckedAt"></span>
+        </div>
+
+        <article class="card current-reference-card">
+          <div class="section-head">
+            <div><span class="eyebrow dark">REFERÊNCIA INTERNA</span><h2>Caixeiros Viajantes — valores atuais</h2></div>
+            <div class="source-links" id="referenceSources"></div>
+          </div>
+          <div class="current-two-cols">
+            <section>
+              <h3>Atividades aquáticas</h3>
+              <div id="currentCaixeirosAquatics"></div>
+            </section>
+            <section>
+              <h3>Vôlei</h3>
+              <div id="currentCaixeirosVolley"></div>
+            </section>
+          </div>
+        </article>
+
+        <article class="card competitors-current-card">
+          <div class="section-head">
+            <div><span class="eyebrow dark">CONCORRENTES DA PESQUISA ANTERIOR</span><h2>Valores atuais dos concorrentes</h2></div>
+            <span class="hint">Sem estimativas: quando não há preço público confirmado, o item fica aguardando retorno do setor.</span>
+          </div>
+          <div class="table-wrap current-market-wrap">
+            <table id="currentCompetitorsTable" class="current-market-table">
+              <thead><tr><th>Clube</th><th>Atividades aquáticas</th><th>Vôlei</th><th>Situação / fonte</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
       </div>
 
-      <div class="grid-2 compact-grid">
-        <article class="card chart-card">
-          <div class="section-head"><div><span class="eyebrow dark">POSIÇÃO COMPETITIVA</span><h2>Ranking de preços</h2></div><span class="hint">Gráfico compacto para leitura em uma tela.</span></div>
-          <div class="chart-frame"><canvas id="rankingChart"></canvas></div>
-          <div id="rankingFallback" class="fallback hidden"></div>
-        </article>
-        <article class="card">
-          <div class="section-head"><div><span class="eyebrow dark">LEITURA GERENCIAL</span><h2>O que os números dizem</h2></div></div>
-          <div id="executiveReading" class="insights"></div>
-        </article>
+      <div class="legacy-home" aria-hidden="true">
+        <div class="kpi-grid">
+          <article class="kpi card"><span>Caixeiros · preço selecionado</span><strong id="kpiCaix">Carregando</strong><small id="kpiCaixLabel"></small></article>
+          <article class="kpi card"><span>Mediana do mercado</span><strong id="kpiMedian">Carregando</strong><small>Somente dados numéricos confirmados.</small></article>
+          <article class="kpi card"><span>Posição do Caixeiros</span><strong id="kpiPosition">Carregando</strong><small id="kpiPositionLabel"></small></article>
+          <article class="kpi card"><span>Concorrentes confirmados</span><strong id="kpiSample">0</strong><small>Com preço comparável no recorte.</small></article>
+        </div>
+        <div class="grid-2 compact-grid">
+          <article class="card chart-card"><div class="section-head"><div><span class="eyebrow dark">POSIÇÃO COMPETITIVA</span><h2>Ranking de preços</h2></div></div><div class="chart-frame"><canvas id="rankingChart"></canvas></div><div id="rankingFallback" class="fallback hidden"></div></article>
+          <article class="card"><div class="section-head"><div><span class="eyebrow dark">LEITURA GERENCIAL</span><h2>O que os números dizem</h2></div></div><div id="executiveReading" class="insights"></div></article>
+        </div>
+        <article class="card summary-card"><div class="section-head"><div><span class="eyebrow dark">RESUMO</span><h2>Valores em tabela simplificada</h2></div></div><div class="table-wrap compact-table"><table id="summaryTable"><thead><tr><th>Clube</th><th>Valor</th><th>Diferença vs. Caixeiros</th><th>Situação</th></tr></thead><tbody></tbody></table></div></article>
+        <article class="card"><div class="section-head"><div><span class="eyebrow dark">CLUBES</span><h2>Acesso rápido</h2></div></div><div id="clubCards" class="club-grid"></div></article>
       </div>
-
-      <article class="card summary-card">
-        <div class="section-head"><div><span class="eyebrow dark">RESUMO</span><h2>Valores em tabela simplificada</h2></div><span class="hint">Clube, valor e diferença em relação ao Caixeiros.</span></div>
-        <div class="table-wrap compact-table"><table id="summaryTable"><thead><tr><th>Clube</th><th>Valor</th><th>Diferença vs. Caixeiros</th><th>Situação</th></tr></thead><tbody></tbody></table></div>
-      </article>
-
-      <article class="card"><div class="section-head"><div><span class="eyebrow dark">CLUBES</span><h2>Acesso rápido</h2></div><span class="hint">Selecione um clube para abrir seus dados.</span></div><div id="clubCards" class="club-grid"></div></article>
     </section>
 
     <section id="compare" class="tab-panel">
@@ -97,6 +127,8 @@
   <script src="data/records-5.js"></script>
   <script src="data/records-6.js"></script>
   <script src="data/fixes.js"></script>
+  <script src="data/current-summary.js"></script>
   <script src="assets/app.js"></script>
+  <script src="assets/home.js"></script>
 </body>
 </html>
