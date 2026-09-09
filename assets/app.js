@@ -1,111 +1,54 @@
 (() => {
-const DATA = window.DASHBOARD_DATA;
-const records = DATA.records || [];
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const fmtMoney = v => typeof v === 'number' ? v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : '—';
-const pct = v => typeof v === 'number' && isFinite(v) ? `${v>=0?'+':''}${(v*100).toFixed(1).replace('.',',')}%` : '—';
-const uniq = a => [...new Set(a.filter(v=>v!==null&&v!==undefined&&v!==''))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
-const numeric = v => typeof v === 'number' && isFinite(v);
-const median = arr => { const x=arr.filter(numeric).sort((a,b)=>a-b); if(!x.length)return null; const m=Math.floor(x.length/2); return x.length%2?x[m]:(x[m-1]+x[m])/2; };
-const byId = id => document.getElementById(id);
+const DATA=window.DASHBOARD_DATA||{};
+const records=DATA.records||[];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], byId=id=>document.getElementById(id);
+const fmtMoney=v=>typeof v==='number'&&isFinite(v)?v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):null;
+const pct=v=>typeof v==='number'&&isFinite(v)?`${v>=0?'+':''}${(v*100).toFixed(1).replace('.',',')}%`:null;
+const uniq=a=>[...new Set(a.filter(v=>v!==null&&v!==undefined&&v!==''))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
+const numeric=v=>typeof v==='number'&&isFinite(v);
+const median=a=>{const x=a.filter(numeric).sort((a,b)=>a-b);if(!x.length)return null;const m=Math.floor(x.length/2);return x.length%2?x[m]:(x[m-1]+x[m])/2};
+const pendingLabel=DATA.meta?.pendingLabel||'Aguardando dados do Administrativo — Setor de Esportes';
+let charts={};
+let state={year:'2026',club:'Todos',modality:'Escola de Natação',audience:'Sócio',frequency:'2x'};
 
-let charts = {};
-let state = { year: '2026', club: 'Todos', modality: 'Escola de Natação', audience: 'Sócio', frequency: '2x' };
+function normalizeAudience(v){if(!v)return'';const s=String(v).toLowerCase();if(s.includes('não sócio')||s.includes('não associado'))return'Não sócio';if(s.includes('associado light'))return'Associado Light';if(s.includes('sócio')||s==='associado')return'Sócio';return v}
+function normalizeFreq(v){if(!v)return'';const m=String(v).match(/([1-5])x/i);return m?`${m[1]}x`:String(v)}
+function isReference(r){return r.club==='Caixeiros Viajantes'}
+function isConfirmedNumeric(r){if(!numeric(r.value))return false;const s=String(r.status||'').toUpperCase();if(r.researchYear===2026&&(s.includes('NÃO LOCALIZADO')||s.includes('NECESSITA')||s.includes('DESATUALIZADO')||s.includes('A CONFIRMAR')))return false;return true}
+function situationText(r){const s=String(r?.status||'').toUpperCase();if(s.includes('SEM EQUIPE')||s.includes('SEM OFERTA'))return'Sem oferta registrada';if(r?.researchYear===2026)return pendingLabel;return'Não informado na pesquisa'}
+function valueText(r){return r&&numeric(r.value)?fmtMoney(r.value):situationText(r)}
+function matches(r,includeClub=true){if(state.year!=='Todos'&&String(r.year)!==state.year)return false;if(includeClub&&state.club!=='Todos'&&r.club!==state.club)return false;if(state.modality!=='Todas'&&r.modality!==state.modality)return false;if(state.audience!=='Todos'&&normalizeAudience(r.audience)!==state.audience)return false;if(state.frequency!=='Todas'&&normalizeFreq(r.frequency)!==state.frequency)return false;return true}
+function setSelect(id,values,current){const el=byId(id);el.innerHTML='';values.forEach(v=>{const o=document.createElement('option');o.value=String(v);o.textContent=String(v);el.appendChild(o)});if(values.map(String).includes(String(current)))el.value=String(current)}
+function initFilters(){setSelect('yearFilter',['Todos',...uniq(records.map(r=>r.year)).sort((a,b)=>b-a)],state.year);setSelect('clubFilter',['Todos',...uniq(records.map(r=>r.club))],state.club);setSelect('modalityFilter',['Todas',...uniq(records.map(r=>r.modality)).filter(x=>x!=='Hidrobike')],state.modality);setSelect('audienceFilter',['Todos','Sócio','Não sócio','Associado Light'],state.audience);setSelect('frequencyFilter',['Todas','1x','2x','3x','4x','5x'],state.frequency)}
+function syncState(){state.year=byId('yearFilter').value;state.club=byId('clubFilter').value;state.modality=byId('modalityFilter').value;state.audience=byId('audienceFilter').value;state.frequency=byId('frequencyFilter').value}
+function filtered(includeClub=true){return records.filter(r=>matches(r,includeClub))}
+function marketRows(){return records.filter(r=>matches(r,false)&&!isReference(r)&&isConfirmedNumeric(r))}
+function caixRows(){return records.filter(r=>matches(r,false)&&isReference(r)&&isConfirmedNumeric(r))}
 
-function normalizeAudience(v){
-  if(!v) return '';
-  const s=String(v).toLowerCase();
-  if(s.includes('não sócio')||s.includes('não associado')) return 'Não sócio';
-  if(s.includes('associado light')) return 'Associado Light';
-  if(s.includes('sócio')||s==='associado') return 'Sócio';
-  return v;
-}
-function normalizeFreq(v){ if(!v)return ''; const m=String(v).match(/([1-5])x/); return m ? `${m[1]}x` : String(v); }
-function isReference(r){return r.club==='Caixeiros Viajantes';}
-function matches(r, includeClub=true){
-  if(state.year!=='Todos' && String(r.year)!==state.year) return false;
-  if(includeClub && state.club!=='Todos' && r.club!==state.club) return false;
-  if(state.modality!=='Todas' && r.modality!==state.modality) return false;
-  if(state.audience!=='Todos' && normalizeAudience(r.audience)!==state.audience) return false;
-  if(state.frequency!=='Todas' && normalizeFreq(r.frequency)!==state.frequency) return false;
-  return true;
-}
-function setSelect(id, values, current){
-  const el=byId(id); el.innerHTML='';
-  values.forEach(v=>{const o=document.createElement('option');o.value=String(v);o.textContent=String(v);el.appendChild(o)});
-  if(values.map(String).includes(String(current))) el.value=String(current);
-}
-function initFilters(){
-  setSelect('yearFilter',['Todos',...uniq(records.map(r=>r.year)).sort((a,b)=>b-a)],state.year);
-  setSelect('clubFilter',['Todos',...uniq(records.map(r=>r.club))],state.club);
-  setSelect('modalityFilter',['Todas',...uniq(records.map(r=>r.modality)).filter(x=>x!=='Hidrobike')],state.modality);
-  setSelect('audienceFilter',['Todos','Sócio','Não sócio','Associado Light'],state.audience);
-  setSelect('frequencyFilter',['Todas','1x','2x','3x','4x','5x'],state.frequency);
-}
-function syncState(){ state.year=byId('yearFilter').value; state.club=byId('clubFilter').value; state.modality=byId('modalityFilter').value; state.audience=byId('audienceFilter').value; state.frequency=byId('frequencyFilter').value; }
-function marketRows(){return records.filter(r=>matches(r,false)&&numeric(r.value)&&!isReference(r));}
-function caixRows(){return records.filter(r=>matches(r,false)&&numeric(r.value)&&isReference(r));}
-function currentKpis(){
-  const caix=caixRows()[0] || null; const market=marketRows(); const med=median(market.map(r=>r.value)); const diff=caix&&med?caix.value/med-1:null;
-  byId('kpiCaix').textContent=caix?fmtMoney(caix.value):'—';
-  byId('kpiCaixLabel').textContent=caix?`${caix.category||caix.modality} · ${caix.audience||''} · ${caix.frequency||''}`:'Sem valor comparável nesse recorte.';
-  byId('kpiMedian').textContent=med?fmtMoney(med):'—'; byId('kpiPosition').textContent=diff!==null?pct(diff):'—'; byId('kpiPosition').style.color=diff===null?'':(diff<=0?'#147d64':'#b94343');
-  byId('kpiPositionLabel').textContent=diff===null?'Sem amostra suficiente.':(diff<0?'Abaixo da mediana dos concorrentes.':'Acima da mediana dos concorrentes.');
-  byId('kpiSample').textContent=String(new Set(market.map(r=>r.club)).size);
-}
-function renderInsights(){
-  const target=byId('executiveReading'); target.innerHTML=''; const caix=caixRows()[0]||null, market=marketRows(), med=median(market.map(r=>r.value));
-  const add=(text,kind='')=>{const d=document.createElement('div');d.className=`insight ${kind}`;d.textContent=text;target.appendChild(d)};
-  if(caix&&med){ const d=caix.value/med-1; add(`No recorte selecionado, o Caixeiros está em ${fmtMoney(caix.value)} contra mediana de ${fmtMoney(med)}. Isso representa ${Math.abs(d*100).toFixed(1).replace('.',',')}% ${d<=0?'abaixo':'acima'} da mediana.`, d<=0?'good':'warn'); }
-  else add('Não há amostra numérica suficiente para calcular a posição do Caixeiros nesse recorte.','warn');
-  add(`${new Set(market.map(r=>r.club)).size} concorrente(s) têm preço numérico comparável no recorte atual. Dados ausentes continuam visíveis como pendência, em vez de serem estimados.`);
-  if(state.year==='2024'||state.year==='Todos') add(DATA.meta.warning2024,'warn');
-  if(state.modality==='Vôlei') add('Vôlei é modalidade nova na análise: escola, equipe e atividade adulta são mantidas separadas quando a fonte permite.');
-}
-function chartOrFallback(canvasId,fallbackId,config){
-  const fb=byId(fallbackId), cv=byId(canvasId);
-  if(typeof Chart==='undefined'){fb.classList.remove('hidden');fb.textContent='Gráfico disponível quando a página estiver online com acesso ao Chart.js.';cv.classList.add('hidden');return;}
-  fb.classList.add('hidden');cv.classList.remove('hidden'); if(charts[canvasId]) charts[canvasId].destroy(); charts[canvasId]=new Chart(cv,config);
-}
-function rankingData(){ const grouped={}; records.filter(r=>matches(r,false)&&numeric(r.value)).forEach(r=>{if(grouped[r.club]===undefined) grouped[r.club]=r.value}); return Object.entries(grouped).sort((a,b)=>a[1]-b[1]); }
-function renderRanking(){
-  const rows=rankingData();
-  chartOrFallback('rankingChart','rankingFallback',{type:'bar',data:{labels:rows.map(x=>x[0]),datasets:[{label:'Mensalidade',data:rows.map(x=>x[1]),backgroundColor:rows.map(x=>x[0]==='Caixeiros Viajantes'?'#1768ac':'#9fb7c8'),borderRadius:7}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtMoney(c.raw)}}},scales:{x:{ticks:{callback:v=>'R$ '+v},grid:{color:'#edf1f5'}},y:{grid:{display:false}}},onClick:(evt,els)=>{if(els.length){state.club=rows[els[0].index][0];byId('clubFilter').value=state.club;renderAll();}}}});
-}
-function renderCompare(){
-  const rows=rankingData();
-  chartOrFallback('compareChart','compareFallback',{type:'bar',data:{labels:rows.map(x=>x[0]),datasets:[{label:'Valor',data:rows.map(x=>x[1]),backgroundColor:rows.map(x=>x[0]==='Caixeiros Viajantes'?'#0b1f33':'#2b9fc7'),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtMoney(c.raw)}}},scales:{y:{ticks:{callback:v=>'R$ '+v},grid:{color:'#edf1f5'}},x:{grid:{display:false}}}}});
-  const tbody=$('#compareTable tbody');tbody.innerHTML='';
-  records.filter(r=>matches(r,false)).sort((a,b)=>(b.value||-1)-(a.value||-1)).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${r.club}</strong></td><td>${r.modality}</td><td>${r.category||'—'}</td><td>${r.audience||'—'}</td><td>${r.frequency||'—'}</td><td class="price">${fmtMoney(r.value)}</td><td class="status">${r.status||'—'}</td>`;tbody.appendChild(tr)});
-}
-function evolutionRows(){ const club=state.club==='Todos'?'Caixeiros Viajantes':state.club; return records.filter(r=>r.club===club && (state.modality==='Todas'||r.modality===state.modality) && (state.audience==='Todos'||normalizeAudience(r.audience)===state.audience) && (state.frequency==='Todas'||normalizeFreq(r.frequency)===state.frequency) && numeric(r.value)); }
-function renderEvolution(){
-  const rows=evolutionRows(), years=[2024,2025,2026], club=state.club==='Todos'?'Caixeiros Viajantes':state.club; const vals=years.map(y=>{const rs=rows.filter(r=>r.year===y);return rs.length?rs[0].value:null});
-  chartOrFallback('evolutionChart','evolutionFallback',{type:'line',data:{labels:years,datasets:[{label:club,data:vals,borderColor:'#1768ac',backgroundColor:'#1768ac',pointRadius:6,pointHoverRadius:8,tension:.22,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw===null?'Sem dado':fmtMoney(c.raw)}}},scales:{y:{ticks:{callback:v=>'R$ '+v},grid:{color:'#edf1f5'}},x:{grid:{display:false}}}}});
-  const box=byId('evolutionSummary');box.innerHTML=''; years.forEach((y,i)=>{const v=vals[i];let change=null;if(i>0&&numeric(vals[i-1])&&numeric(v))change=v/vals[i-1]-1;const d=document.createElement('div');d.className='evo-card';d.innerHTML=`<span>${y}${y===2024?' · provisório':''}</span><strong>${fmtMoney(v)}</strong><span>${change===null?'Sem comparação anual':`Variação: ${pct(change)}`}</span>`;box.appendChild(d)});
-}
-function renderClubCards(){
-  const clubs=uniq(records.filter(r=>state.year==='Todos'||String(r.year)===state.year).map(r=>r.club)), box=byId('clubCards');box.innerHTML='';
-  clubs.forEach(c=>{const rs=records.filter(r=>r.club===c&&(state.year==='Todos'||String(r.year)===state.year));const priced=rs.filter(r=>numeric(r.value)).length;const d=document.createElement('button');d.className=`club-card ${c==='Caixeiros Viajantes'?'reference':''}`;d.innerHTML=`<strong>${c}</strong><small>${priced} preço(s) numérico(s)</small>`;d.onclick=()=>{state.club=c;byId('clubFilter').value=c;$$('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab==='data'));$$('.tab-panel').forEach(x=>x.classList.toggle('active',x.id==='data'));renderAll();};box.appendChild(d)});
-}
-function renderData(){
-  const tbody=$('#dataTable tbody');tbody.innerHTML=''; records.filter(r=>matches(r,true)).slice(0,500).forEach(r=>{const src=r.source?`<a class="source-link" href="${r.source}" target="_blank" rel="noopener">abrir</a>`:'—';const tr=document.createElement('tr');tr.innerHTML=`<td>${r.year}</td><td><strong>${r.club}</strong></td><td>${r.modality}</td><td>${r.type||''}${r.category?` · ${r.category}`:''}</td><td>${r.audience||'—'}</td><td>${r.frequency||'—'}</td><td class="price">${fmtMoney(r.value)}</td><td class="status">${r.status||'—'}</td><td>${src}</td>`;tbody.appendChild(tr)});
-}
-function renderContacts(){
-  const box=byId('contactsList');box.innerHTML=''; (DATA.contacts||[]).forEach(c=>{const club=c['Clube']||c['CLUBE']||Object.values(c)[0];const ask=c['O que perguntar / confirmar']||c['O QUE PERGUNTAR / CONFIRMAR']||'';const tel=c['Telefone']||c['TELEFONE']||'';const wa=c['WhatsApp']||c['WHATSAPP']||'';const mail=c['E-mail']||c['E-MAIL']||'';const d=document.createElement('div');d.className='contact';d.innerHTML=`<strong>${club}</strong><p>${ask||'Pendência de confirmação.'}</p><div class="channels">${tel?`<span>☎ ${tel}</span>`:''}${wa?`<span>WhatsApp ${wa}</span>`:''}${mail?`<span>✉ ${mail}</span>`:''}</div>`;box.appendChild(d)});
-}
-function renderSourceStats(){
-  const box=byId('sourceStats');box.innerHTML=''; const total=(DATA.sources||[]).length; const current=records.filter(r=>r.year===2026&&String(r.status||'').includes('ATUAL')).length; const pending=records.filter(r=>r.year===2026&&(String(r.status||'').includes('NÃO LOCALIZADO')||String(r.status||'').includes('NECESSITA'))).length;
-  [[total,'fontes registradas'],[current,'registros atuais'],[pending,'registros pendentes'],[new Set(records.filter(r=>r.year===2026).map(r=>r.club)).size,'instituições 2026']].forEach(([n,l])=>{const d=document.createElement('div');d.className='stat';d.innerHTML=`<strong>${n}</strong><span>${l}</span>`;box.appendChild(d)});
-}
-function exportCsv(){ const rs=records.filter(r=>matches(r,true)); const cols=['year','club','modality','type','category','audience','frequency','value','status','quality','note','source']; const esc=v=>`"${String(v??'').replaceAll('"','""')}"`; const csv=[cols.join(';'),...rs.map(r=>cols.map(c=>esc(r[c])).join(';'))].join('\n'); const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='analise_mercado_recorte.csv';a.click();URL.revokeObjectURL(a.href); }
-function renderWarning(){const w=byId('warning2024');if(state.year==='2024'||state.year==='Todos'){w.textContent=DATA.meta.warning2024;w.classList.remove('hidden')}else w.classList.add('hidden')}
-function renderAll(){syncState();currentKpis();renderWarning();renderInsights();renderRanking();renderCompare();renderEvolution();renderClubCards();renderData();}
-function bind(){
-  ['yearFilter','clubFilter','modalityFilter','audienceFilter','frequencyFilter'].forEach(id=>byId(id).addEventListener('change',renderAll));
-  byId('resetFilters').onclick=()=>{state={year:'2026',club:'Todos',modality:'Escola de Natação',audience:'Sócio',frequency:'2x'};initFilters();renderAll();}; byId('exportCsv').onclick=exportCsv;
-  $$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('active',x===t));$$('.tab-panel').forEach(p=>p.classList.toggle('active',p.id===t.dataset.tab));setTimeout(()=>{Object.values(charts).forEach(c=>c.resize())},30)});
-}
-byId('updatedAt').textContent=DATA.meta.updated; initFilters();bind();renderContacts();renderSourceStats();renderAll();
+function currentKpis(){const caix=caixRows()[0]||null,market=marketRows(),med=median(market.map(r=>r.value)),diff=caix&&med?caix.value/med-1:null;byId('kpiCaix').textContent=caix?fmtMoney(caix.value):'Aguardando dados';byId('kpiCaixLabel').textContent=caix?`${caix.category||caix.modality} · ${caix.audience||''} · ${caix.frequency||''}`:pendingLabel;byId('kpiMedian').textContent=med?fmtMoney(med):'Aguardando dados';byId('kpiPosition').textContent=diff!==null?pct(diff):'Aguardando dados';byId('kpiPosition').style.color=diff===null?'':(diff<=0?'#147d64':'#b94343');byId('kpiPositionLabel').textContent=diff===null?pendingLabel:(diff<0?'Abaixo da mediana dos concorrentes.':'Acima da mediana dos concorrentes.');byId('kpiSample').textContent=String(new Set(market.map(r=>r.club)).size)}
+
+function renderInsights(){const target=byId('executiveReading');target.innerHTML='';const caix=caixRows()[0]||null,market=marketRows(),med=median(market.map(r=>r.value));const add=(t,k='')=>{const d=document.createElement('div');d.className=`insight ${k}`;d.textContent=t;target.appendChild(d)};if(caix&&med){const d=caix.value/med-1;add(`Caixeiros: ${fmtMoney(caix.value)}. Mediana dos concorrentes: ${fmtMoney(med)}. O valor está ${Math.abs(d*100).toFixed(1).replace('.',',')}% ${d<=0?'abaixo':'acima'} da mediana.`,d<=0?'good':'warn')}else add(pendingLabel,'warn');add(`${new Set(market.map(r=>r.club)).size} concorrente(s) possuem preço confirmado e comparável neste recorte.`);if(state.modality==='Vôlei')add('Vôlei é nova na análise de 2026; escola, formação e equipe permanecem separadas quando a fonte permite.')}
+
+function chartOrFallback(canvasId,fallbackId,config){const fb=byId(fallbackId),cv=byId(canvasId);if(typeof Chart==='undefined'){fb.classList.remove('hidden');fb.textContent='Gráfico indisponível nesta visualização.';cv.classList.add('hidden');return}fb.classList.add('hidden');cv.classList.remove('hidden');if(charts[canvasId])charts[canvasId].destroy();charts[canvasId]=new Chart(cv,config)}
+function rankingData(){const grouped={};records.filter(r=>matches(r,false)&&isConfirmedNumeric(r)).forEach(r=>{if(grouped[r.club]===undefined)grouped[r.club]=r.value});return Object.entries(grouped).sort((a,b)=>a[1]-b[1])}
+function renderRanking(){const rows=rankingData();chartOrFallback('rankingChart','rankingFallback',{type:'bar',data:{labels:rows.map(x=>x[0]),datasets:[{data:rows.map(x=>x[1]),backgroundColor:rows.map(x=>x[0]==='Caixeiros Viajantes'?'#1768ac':'#9fb7c8'),borderRadius:6,barThickness:15}]},options:{responsive:true,maintainAspectRatio:false,animation:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtMoney(c.raw)}}},scales:{x:{ticks:{callback:v=>'R$ '+v,font:{size:10}},grid:{color:'#edf1f5'}},y:{ticks:{font:{size:10}},grid:{display:false}}},onClick:(e,els)=>{if(els.length){state.club=rows[els[0].index][0];byId('clubFilter').value=state.club;renderAll()}}}})}
+
+function summaryRows(){const rows=filtered(false),clubs=uniq(rows.map(r=>r.club));return clubs.map(club=>{const cr=rows.filter(r=>r.club===club);const confirmed=cr.find(isConfirmedNumeric);return confirmed||cr[0]}).sort((a,b)=>{if(isConfirmedNumeric(a)&&isConfirmedNumeric(b))return a.value-b.value;if(isConfirmedNumeric(a))return-1;if(isConfirmedNumeric(b))return 1;return a.club.localeCompare(b.club,'pt-BR')})}
+function renderSummary(){const tbody=$('#summaryTable tbody');tbody.innerHTML='';const caix=caixRows()[0]||null;summaryRows().forEach(r=>{const diff=caix&&isConfirmedNumeric(r)?r.value/caix.value-1:null;const status=isConfirmedNumeric(r)?(isReference(r)?'Referência interna':'Valor confirmado'):situationText(r);const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${r.club}</strong></td><td class="price">${numeric(r.value)?fmtMoney(r.value):`<span class="pending">${situationText(r)}</span>`}</td><td>${diff===null?'Comparação indisponível':(isReference(r)?'Referência':pct(diff))}</td><td>${isConfirmedNumeric(r)?status:`<span class="pending">${status}</span>`}</td>`;tbody.appendChild(tr)})}
+
+function renderCompare(){const rows=rankingData();chartOrFallback('compareChart','compareFallback',{type:'bar',data:{labels:rows.map(x=>x[0]),datasets:[{data:rows.map(x=>x[1]),backgroundColor:rows.map(x=>x[0]==='Caixeiros Viajantes'?'#0b1f33':'#2b9fc7'),borderRadius:6,barThickness:20}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtMoney(c.raw)}}},scales:{y:{ticks:{callback:v=>'R$ '+v,font:{size:10}},grid:{color:'#edf1f5'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});const tbody=$('#compareTable tbody');tbody.innerHTML='';filtered(false).sort((a,b)=>(isConfirmedNumeric(b)?b.value:-1)-(isConfirmedNumeric(a)?a.value:-1)).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${r.club}</strong></td><td>${r.modality}</td><td>${r.category||'Sem categoria informada'}</td><td>${r.audience||'Público não informado'}</td><td>${r.frequency||'Frequência não informada'}</td><td class="price">${numeric(r.value)?fmtMoney(r.value):`<span class="pending">${situationText(r)}</span>`}</td><td class="status">${r.status||situationText(r)}</td>`;tbody.appendChild(tr)})}
+
+function evolutionRows(){const club=state.club==='Todos'?'Caixeiros Viajantes':state.club;return records.filter(r=>r.club===club&&(state.modality==='Todas'||r.modality===state.modality)&&(state.audience==='Todos'||normalizeAudience(r.audience)===state.audience)&&(state.frequency==='Todas'||normalizeFreq(r.frequency)===state.frequency)&&isConfirmedNumeric(r))}
+function renderEvolution(){const rows=evolutionRows(),years=uniq(records.map(r=>r.year)).filter(y=>Number.isFinite(Number(y))).map(Number).sort((a,b)=>a-b),club=state.club==='Todos'?'Caixeiros Viajantes':state.club,vals=years.map(y=>{const rs=rows.filter(r=>r.year===y);return rs.length?rs[0].value:null});chartOrFallback('evolutionChart','evolutionFallback',{type:'line',data:{labels:years,datasets:[{label:club,data:vals,borderColor:'#1768ac',backgroundColor:'#1768ac',pointRadius:5,pointHoverRadius:7,tension:.18,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw===null?'Sem dado confirmado':fmtMoney(c.raw)}}},scales:{y:{ticks:{callback:v=>'R$ '+v,font:{size:10}},grid:{color:'#edf1f5'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});const box=byId('evolutionSummary');box.innerHTML='';years.forEach((y,i)=>{const v=vals[i],prevIndex=vals.slice(0,i).map((v,j)=>numeric(v)?j:-1).filter(j=>j>=0).pop(),prev=prevIndex!==undefined?vals[prevIndex]:null,change=numeric(v)&&numeric(prev)?v/prev-1:null,research=rows.find(r=>r.year===y)?.researchYear;const d=document.createElement('div');d.className='evo-card';d.innerHTML=`<span>${y}${research?` · pesquisa ${research}`:''}</span><strong>${numeric(v)?fmtMoney(v):'Sem dado confirmado'}</strong><span>${change===null?'Sem comparação disponível':`Variação desde ${years[prevIndex]}: ${pct(change)}`}</span>`;box.appendChild(d)})}
+
+function renderClubCards(){const clubs=uniq(records.filter(r=>state.year==='Todos'||String(r.year)===state.year).map(r=>r.club)),box=byId('clubCards');box.innerHTML='';clubs.forEach(c=>{const rs=records.filter(r=>r.club===c&&(state.year==='Todos'||String(r.year)===state.year)),priced=rs.filter(isConfirmedNumeric).length;const d=document.createElement('button');d.className=`club-card ${c==='Caixeiros Viajantes'?'reference':''}`;d.innerHTML=`<strong>${c}</strong><small>${priced?`${priced} preço(s) confirmado(s)`:pendingLabel}</small>`;d.onclick=()=>{state.club=c;byId('clubFilter').value=c;$$('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab==='data'));$$('.tab-panel').forEach(x=>x.classList.toggle('active',x.id==='data'));renderAll()};box.appendChild(d)})}
+
+function renderData(){const tbody=$('#dataTable tbody');tbody.innerHTML='';filtered(true).slice(0,600).forEach(r=>{const src=r.source?`<a class="source-link" href="${r.source}" target="_blank" rel="noopener">Abrir fonte</a>`:'Fonte não registrada';const tr=document.createElement('tr');tr.innerHTML=`<td>${r.year}</td><td>Pesquisa ${r.researchYear||r.year}</td><td><strong>${r.club}</strong></td><td>${r.modality}</td><td>${r.type||'Tipo não informado'}${r.category?` · ${r.category}`:''}</td><td>${r.audience||'Público não informado'}</td><td>${r.frequency||'Frequência não informada'}</td><td class="price">${numeric(r.value)?fmtMoney(r.value):`<span class="pending">${situationText(r)}</span>`}</td><td class="status">${r.status||situationText(r)}</td><td>${src}</td>`;tbody.appendChild(tr)})}
+
+function renderContacts(){const box=byId('contactsList');box.innerHTML='';(DATA.contacts||[]).forEach(c=>{const club=c['Clube']||Object.values(c)[0],ask=c['O que falta']||c['O que perguntar / confirmar']||'Confirmação de valores atuais.',tel=c['Telefone'],wa=c['WhatsApp'],mail=c['E-mail'];const d=document.createElement('div');d.className='contact';d.innerHTML=`<strong>${club}</strong><p>${ask}</p><div class="channels">${tel?`<span>☎ ${tel}</span>`:''}${wa?`<span>WhatsApp ${wa}</span>`:''}${mail?`<span>✉ ${mail}</span>`:''}</div>`;box.appendChild(d)})}
+function renderSourceStats(){const box=byId('sourceStats');box.innerHTML='';const current=records.filter(r=>r.researchYear===2026&&isConfirmedNumeric(r)).length,pending=records.filter(r=>r.researchYear===2026&&!isConfirmedNumeric(r)).length,clubs=new Set(records.filter(r=>r.researchYear===2026).map(r=>r.club)).size;[[current,'registros confirmados 2026'],[pending,'registros aguardando dados'],[clubs,'instituições analisadas'],[(DATA.contacts||[]).length,'contatos pendentes']].forEach(([n,l])=>{const d=document.createElement('div');d.className='stat';d.innerHTML=`<strong>${n}</strong><span>${l}</span>`;box.appendChild(d)})}
+function exportCsv(){const rs=filtered(true),cols=['year','researchYear','club','modality','type','category','audience','frequency','value','status','source'],esc=v=>`"${String(v??'').replaceAll('"','""')}"`,csv=[cols.join(';'),...rs.map(r=>cols.map(c=>esc(r[c])).join(';'))].join('\n'),blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='analise_mercado_recorte.csv';a.click();URL.revokeObjectURL(a.href)}
+function renderAll(){syncState();currentKpis();renderInsights();renderRanking();renderSummary();renderCompare();renderEvolution();renderClubCards();renderData()}
+function bind(){['yearFilter','clubFilter','modalityFilter','audienceFilter','frequencyFilter'].forEach(id=>byId(id).addEventListener('change',renderAll));byId('resetFilters').onclick=()=>{state={year:'2026',club:'Todos',modality:'Escola de Natação',audience:'Sócio',frequency:'2x'};initFilters();renderAll()};byId('exportCsv').onclick=exportCsv;$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('active',x===t));$$('.tab-panel').forEach(p=>p.classList.toggle('active',p.id===t.dataset.tab));setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),20)})}
+byId('updatedAt').textContent=DATA.meta?.updated||'09/09/2026';byId('yearLogic').textContent=DATA.meta?.yearLogic||'';initFilters();bind();renderContacts();renderSourceStats();renderAll();
 })();
