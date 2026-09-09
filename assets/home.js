@@ -13,9 +13,15 @@
   };
 
   const sourceLinks = (item) => {
-    const links = [item.source, item.source2, item.source3].filter(Boolean);
+    const links = [item.source, item.source2, item.source3, item.source4].filter(Boolean);
     if (!links.length) return '<span class="source-muted">Fonte pública oficial não localizada</span>';
     return links.map((url, i) => `<a href="${url}" target="_blank" rel="noopener">Fonte${links.length > 1 ? ` ${i + 1}` : ''}</a>`).join(' · ');
+  };
+
+  const statusBadge = (status) => {
+    const confirmed = String(status || '').toUpperCase().startsWith('CONFIRMADO ATUAL');
+    if (confirmed) return `<span class="confirmed-badge">${status}</span>`;
+    return `<span class="pending">${pending}</span>`;
   };
 
   const ref = data.reference;
@@ -44,6 +50,9 @@
     `).join('');
   }
 
+  const refStatus = $('#referenceStatus');
+  if (refStatus) refStatus.innerHTML = statusBadge(ref.status);
+
   const tbody = $('#currentCompetitorsTable tbody');
   if (tbody) {
     tbody.innerHTML = data.competitors.map(c => {
@@ -58,7 +67,7 @@
           <td>${aquatic}</td>
           <td><div class="mini-value">${valueOrPending(c.volei)}</div></td>
           <td>
-            <div class="market-status">${c.status}</div>
+            <div class="market-status">${statusBadge(c.status)}</div>
             <div class="source-links">${sourceLinks(c)}</div>
           </td>
         </tr>
@@ -74,7 +83,6 @@
 
   const toolbar = document.querySelector('.toolbar');
   const tabs = [...document.querySelectorAll('.tab')];
-  const panels = [...document.querySelectorAll('.tab-panel')];
 
   function syncToolbar() {
     const overviewActive = document.querySelector('.tab[data-tab="overview"]')?.classList.contains('active');
