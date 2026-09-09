@@ -37,6 +37,46 @@ window.CURRENT_MARKET_SUMMARY = {
     source2: 'https://www.caixeirosviajantes.com.br/equipesdenatacao',
     source3: 'https://www.caixeirosviajantes.com.br/v%C3%B4lei'
   },
+  marketPosition: {
+    note: '1º = menor mensalidade. Só entram valores confirmados com modalidade, público e frequência equivalentes. A posição mede preço, não qualidade.',
+    items: [
+      {
+        label: 'Natação 2x · Sócio',
+        caixeiros: 'R$ 170',
+        position: '3º de 5',
+        comparison: 'Mediana dos concorrentes: R$ 163 · Caixeiros 4,3% acima',
+        base: 'GNG R$ 148 · ACM R$ 152 · Recreio R$ 174 · GNU R$ 249'
+      },
+      {
+        label: 'Natação 2x · Não sócio',
+        caixeiros: 'R$ 340',
+        position: '2º de 3',
+        comparison: 'Mediana dos concorrentes: R$ 383 · Caixeiros 11,2% abaixo',
+        base: 'GNG R$ 268 · GNU R$ 498'
+      },
+      {
+        label: 'Vôlei escola 2x · Sócio',
+        caixeiros: 'R$ 170',
+        position: '3º de 4',
+        comparison: 'Mediana dos concorrentes: R$ 147 · Caixeiros 15,6% acima',
+        base: 'GNG R$ 109 · Recreio R$ 147 · GNU R$ 197'
+      },
+      {
+        label: 'Vôlei escola 2x · Não sócio',
+        caixeiros: 'R$ 240',
+        position: '2º de 3',
+        comparison: 'Mediana dos concorrentes: R$ 257 · Caixeiros 6,6% abaixo',
+        base: 'GNG R$ 219 · GNU R$ 295'
+      },
+      {
+        label: 'Hidroginástica 2x · Sócio',
+        caixeiros: 'R$ 170',
+        position: 'Dentro da faixa confirmada',
+        comparison: 'Faixa concorrente confirmada: R$ 124 a R$ 204',
+        base: 'ACM R$ 124 · GNG R$ 163 · Recreio Dia R$ 151 / Noite R$ 204 · GNU não entra: plano mensal sem frequência equivalente'
+      }
+    ]
+  },
   competitors: [
     {
       club: 'GNU',
@@ -91,7 +131,7 @@ window.CURRENT_MARKET_SUMMARY = {
     {
       club: 'ACM',
       natacao: 'Associado: 1x R$ 80 · 2x R$ 152 · 3x R$ 219 | Light: R$ 152 · R$ 292 · R$ 422 | Não associado: consultar',
-      hidro: 'Associado: 1x R$ 68 · 2x R$ 124 · 3x R$ 175 | Light: R$ 152 · R$ 292 · R$ 357',
+      hidro: 'Associado: 1x R$ 68 · 2x R$ 124 · 3x R$ 175 | Light: R$ 152 · R$ 292 · R$ 357 | Não associado: consultar',
       equipeNatacao: null,
       volei: null,
       status: 'CONFIRMADO ATUAL — PARCIAL',
@@ -106,7 +146,7 @@ window.CURRENT_MARKET_SUMMARY = {
       equipeNatacao: null,
       volei: null,
       status: 'AGUARDANDO DADOS',
-      source: 'https://www.geraldosantana.com.br/natacao-hidrobike',
+      source: 'https://www.geraldosantana.com.br/tabela-piscina',
       source2: 'https://www.geraldosantana.com.br/volei'
     },
     {
