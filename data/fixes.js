@@ -15,6 +15,13 @@
 
     if (r.club === 'Grêmio Náutico Gaúcho') r.club = 'GNG';
 
+    // As planilhas históricas registram os valores praticados na época do levantamento.
+    // Portanto, todo valor numérico das pesquisas anteriores é um valor histórico confirmado,
+    // não um dado provisório.
+    if ((r.researchYear === 2024 || r.researchYear === 2025) && typeof r.value === 'number') {
+      r.status = 'VALOR HISTÓRICO CONFIRMADO';
+    }
+
     if (r.researchYear === 2026 && r.club === 'Caixeiros Viajantes' && typeof r.value === 'number') {
       r.status = 'CONFIRMADO ATUAL';
     }
