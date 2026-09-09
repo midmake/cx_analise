@@ -4,7 +4,7 @@
   const yearMap = { 2024: 2023, 2025: 2024, 2026: 2025 };
 
   data.meta = data.meta || {};
-  data.meta.yearLogic = 'Pesquisa 2024 = valores de 2023 · Pesquisa 2025 = valores de 2024 · Pesquisa 2026 = valores vigentes de 2025, usados para definir os valores de 2026';
+  data.meta.yearLogic = 'Pesquisa 2026 · valores atuais coletados para apoiar a definição das mensalidades de 2026';
   data.meta.pendingLabel = 'Aguardando dados do Administrativo — Setor de Esportes';
   data.meta.warning2024 = null;
 
@@ -15,10 +15,23 @@
 
     if (r.club === 'Grêmio Náutico Gaúcho') r.club = 'GNG';
 
+    // Todo valor numérico atual do Caixeiros está publicado nas páginas oficiais do clube.
     if (r.researchYear === 2026 && r.club === 'Caixeiros Viajantes' && typeof r.value === 'number') {
-      r.status = 'VIGENTE 2025';
+      r.status = 'CONFIRMADO ATUAL';
     }
 
+    // No Recreio, a tabela oficial confirma os valores numéricos. Eventual dúvida de
+    // nomenclatura escola/equipe não torna o preço incerto.
+    if (
+      r.researchYear === 2026 &&
+      r.club === 'Recreio da Juventude' &&
+      typeof r.value === 'number' &&
+      String(r.source || '').includes('recreiodajuventude.com.br')
+    ) {
+      r.status = 'CONFIRMADO ATUAL';
+    }
+
+    // Valores marcados expressamente como desatualizados nunca entram em benchmark atual.
     if (r.researchYear === 2026 && String(r.status || '').toUpperCase().includes('DESATUALIZADO')) {
       r.displayValue = r.value;
       r.value = null;
