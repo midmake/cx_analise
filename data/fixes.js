@@ -76,4 +76,18 @@
       }
     }
   }
+
+  // Raia Center: após receber preços atuais de Natação/Hidro da Zona Norte,
+  // remove apenas os placeholders antigos dessas duas modalidades. Equipe e Vôlei seguem pendentes.
+  for (let i = records.length - 1; i >= 0; i--) {
+    const r = records[i];
+    if (
+      r.sourceFileYear === 2026 &&
+      r.club === 'Raia Center' &&
+      (r.modality === 'Escola de Natação' || r.modality === 'Hidroginástica') &&
+      typeof r.value !== 'number'
+    ) {
+      records.splice(i, 1);
+    }
+  }
 })();
