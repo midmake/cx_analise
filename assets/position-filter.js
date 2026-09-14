@@ -31,131 +31,64 @@
   card.className = 'card caixeiros-position-card position-filter-card';
   card.innerHTML = `
     <div class="position-filter-head">
-      <div>
-        <span class="eyebrow dark">POSIÇÃO DO CAIXEIROS</span>
-        <h2>Caixeiros Viajantes em relação ao mercado</h2>
-      </div>
+      <div><span class="eyebrow dark">POSIÇÃO DO CAIXEIROS</span><h2>Caixeiros Viajantes em relação ao mercado</h2></div>
       <div class="position-controls">
-        <div class="position-control">
-          <label for="positionModality">Modalidade</label>
-          <select id="positionModality">
-            <option value="natacao">Natação</option>
-            <option value="volei">Vôlei</option>
-          </select>
-        </div>
-        <div class="position-control">
-          <label for="positionFrequency">Frequência</label>
-          <select id="positionFrequency">
-            <option value="1x">1 vez por semana</option>
-            <option value="2x" selected>2 vezes por semana</option>
-            <option value="3x">3 vezes por semana</option>
-            <option value="4x">4 vezes por semana</option>
-            <option value="5x">5 vezes por semana</option>
-            <option value="Livre">Livre</option>
-          </select>
-        </div>
+        <div class="position-control"><label for="positionModality">Modalidade</label><select id="positionModality"><option value="natacao">Natação</option><option value="volei">Vôlei</option></select></div>
+        <div class="position-control"><label for="positionFrequency">Frequência</label><select id="positionFrequency">
+          <option value="1x">1 vez por semana</option><option value="2x" selected>2 vezes por semana</option>
+          <option value="3x">3 vezes por semana</option><option value="4x">4 vezes por semana</option>
+          <option value="5x">5 vezes por semana</option><option value="Livre">Livre</option>
+        </select></div>
       </div>
     </div>
-    <div class="position-results">
-      <section class="position-result" data-audience="Sócio"></section>
-      <section class="position-result" data-audience="Não sócio"></section>
-    </div>
-    <p class="position-filter-note">1º = menor mensalidade. A posição usa somente valores atuais confirmados com modalidade, público e frequência equivalentes. Se a base não for suficiente, o painel informa sem estimar.</p>`;
+    <div class="position-results"><section class="position-result" data-audience="Sócio"></section><section class="position-result" data-audience="Não sócio"></section></div>
+    <p class="position-filter-note">1º = menor mensalidade. Só entram valores de 2026 com modalidade, público e frequência equivalentes. Se um clube tiver mais de um plano no mesmo recorte, ele não entra no ranking até o plano ser selecionado nos filtros.</p>`;
   oldCard.replaceWith(card);
 
-  const money = v => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
-  const normalizeAudience = v => {
-    const s = String(v || '').toLowerCase();
-    if (s.includes('associado light')) return 'Associado Light';
-    if (s.includes('não sócio') || s.includes('não associado')) return 'Não sócio';
-    if (s.includes('sócio') || s === 'associado') return 'Sócio';
-    return String(v || '');
+  const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2});
+  const normAudience = v => {
+    const s=String(v||'').toLowerCase();
+    if (s.includes('não sócio')||s.includes('não associado')) return 'Não sócio';
+    if (s.includes('sócio')||s==='associado') return 'Sócio';
+    return String(v||'');
   };
-  const normalizeFrequency = v => {
-    const s = String(v || '').trim();
-    const m = s.match(/([1-5])x/i);
-    if (m) return `${m[1]}x`;
+  const normFreq = v => {
+    const s=String(v||'').trim();
     if (/livre/i.test(s)) return 'Livre';
-    return s;
+    const m=s.match(/([1-5])x/i); return m?`${m[1]}x`:s;
   };
-  const validCurrent = r => {
-    if (Number(r.year) !== 2025 || typeof r.value !== 'number' || !isFinite(r.value)) return false;
-    const s = String(r.status || '').toUpperCase();
-    return !s.includes('NÃO LOCALIZADO') && !s.includes('NECESSITA') && !s.includes('DESATUALIZADO') && !s.includes('A CONFIRMAR');
-  };
-  const modalityMatch = (r, modality) => {
-    if (modality === 'natacao') return r.modality === 'Escola de Natação';
-    if (r.modality !== 'Vôlei') return false;
-    const type = String(r.type || '').toLowerCase();
-    return !type.includes('equipe') && !type.includes('confirmar');
-  };
-  const median = values => {
-    const x = [...values].sort((a,b) => a-b);
-    if (!x.length) return null;
-    const m = Math.floor(x.length / 2);
-    return x.length % 2 ? x[m] : (x[m-1] + x[m]) / 2;
-  };
+  const valid = r => Number(r.year)===2026 && typeof r.value==='number' && isFinite(r.value) &&
+    !/DESATUALIZADO|NÃO LOCALIZADO|NECESSITA|A CONFIRMAR/i.test(String(r.status||''));
+  const modalityMatch = (r,m) => m==='natacao'
+    ? r.modality==='Escola de Natação'
+    : (r.modality==='Escola de Vôlei' || r.modality==='Vôlei');
+  const median = xs => { const a=[...xs].sort((x,y)=>x-y); if(!a.length)return null; const m=Math.floor(a.length/2); return a.length%2?a[m]:(a[m-1]+a[m])/2; };
 
-  function comparableRows(modality, frequency, audience) {
-    return records.filter(r => validCurrent(r) && modalityMatch(r, modality) && normalizeAudience(r.audience) === audience && normalizeFrequency(r.frequency) === frequency);
+  function uniqueClubValues(rows){
+    const g=new Map();
+    rows.forEach(r=>{ if(!g.has(r.club))g.set(r.club,new Set()); g.get(r.club).add(r.value); });
+    return [...g.entries()].filter(([,v])=>v.size===1).map(([club,v])=>({club,value:[...v][0]}));
   }
 
-  function uniqueClubValues(rows) {
-    const groups = new Map();
-    rows.forEach(r => {
-      if (!groups.has(r.club)) groups.set(r.club, new Set());
-      groups.get(r.club).add(r.value);
-    });
-    const result = [];
-    groups.forEach((values, club) => {
-      if (values.size === 1) result.push({ club, value: [...values][0] });
-    });
-    return result;
+  function renderAudience(audience, modality, frequency){
+    const target=card.querySelector(`[data-audience="${audience}"]`);
+    const rows=records.filter(r=>valid(r)&&modalityMatch(r,modality)&&normAudience(r.audience)===audience&&normFreq(r.frequency)===frequency);
+    const vals=uniqueClubValues(rows);
+    const caix=vals.find(x=>x.club==='Caixeiros Viajantes');
+    const comp=vals.filter(x=>x.club!=='Caixeiros Viajantes');
+    if(!caix){target.innerHTML=`<span class="position-result-title">${audience}</span><div class="position-no-data">Sem valor confirmado do Caixeiros para este recorte.</div>`;return;}
+    let rank='Base insuficiente para ranking';
+    if(comp.length>=2){const ord=[caix,...comp].sort((a,b)=>a.value-b.value);rank=`${ord.findIndex(x=>x.club==='Caixeiros Viajantes')+1}º de ${ord.length}`;}
+    else if(comp.length===1) rank=caix.value<=comp[0].value?'Menor na comparação direta':'Maior na comparação direta';
+    const med=median(comp.map(x=>x.value));
+    let line=comp.length?`${comp.length} concorrente${comp.length>1?'s':''} comparável${comp.length>1?'eis':''}.`:'Nenhum concorrente equivalente confirmado.';
+    if(med!==null){const d=caix.value/med-1;line+=` Mediana: ${money(med)} · Caixeiros ${Math.abs(d*100).toFixed(1).replace('.',',')}% ${d<=0?'abaixo':'acima'}.`;}
+    const base=comp.length?comp.sort((a,b)=>a.value-b.value).map(x=>`${x.club} ${money(x.value)}`).join(' · '):'Sem base concorrente confirmada para este recorte.';
+    target.innerHTML=`<span class="position-result-title">${audience}</span><div class="position-value-row"><strong class="position-price">${money(caix.value)}</strong><b class="position-rank-clean">${rank}</b></div><div class="position-market-line">${line}</div><div class="position-base-line">${base}</div>`;
   }
 
-  function renderAudience(audience, modality, frequency) {
-    const target = card.querySelector(`[data-audience="${audience}"]`);
-    const rows = comparableRows(modality, frequency, audience);
-    const values = uniqueClubValues(rows);
-    const caix = values.find(x => x.club === 'Caixeiros Viajantes');
-    const competitors = values.filter(x => x.club !== 'Caixeiros Viajantes');
-
-    if (!caix) {
-      target.innerHTML = `<span class="position-result-title">${audience}</span><div class="position-no-data">Sem valor confirmado do Caixeiros para este recorte.</div>`;
-      return;
-    }
-
-    let rankText = 'Base insuficiente para ranking';
-    if (competitors.length >= 2) {
-      const ordered = [caix, ...competitors].sort((a,b) => a.value - b.value);
-      rankText = `${ordered.findIndex(x => x.club === 'Caixeiros Viajantes') + 1}º de ${ordered.length}`;
-    } else if (competitors.length === 1) {
-      rankText = caix.value <= competitors[0].value ? 'Menor na comparação direta' : 'Maior na comparação direta';
-    }
-
-    const med = median(competitors.map(x => x.value));
-    let marketLine = competitors.length ? `${competitors.length} concorrente${competitors.length > 1 ? 's' : ''} comparável${competitors.length > 1 ? 'eis' : ''}.` : 'Nenhum concorrente equivalente confirmado.';
-    if (med !== null) {
-      const diff = caix.value / med - 1;
-      marketLine += ` Mediana: ${money(med)} · Caixeiros ${Math.abs(diff * 100).toFixed(1).replace('.', ',')}% ${diff <= 0 ? 'abaixo' : 'acima'}.`;
-    }
-    const baseLine = competitors.length ? competitors.sort((a,b)=>a.value-b.value).map(x => `${x.club} ${money(x.value)}`).join(' · ') : 'Sem base concorrente confirmada para este recorte.';
-
-    target.innerHTML = `
-      <span class="position-result-title">${audience}</span>
-      <div class="position-value-row"><strong class="position-price">${money(caix.value)}</strong><b class="position-rank-clean">${rankText}</b></div>
-      <div class="position-market-line">${marketLine}</div>
-      <div class="position-base-line">${baseLine}</div>`;
-  }
-
-  function update() {
-    const modality = document.getElementById('positionModality').value;
-    const frequency = document.getElementById('positionFrequency').value;
-    renderAudience('Sócio', modality, frequency);
-    renderAudience('Não sócio', modality, frequency);
-  }
-
-  document.getElementById('positionModality').addEventListener('change', update);
-  document.getElementById('positionFrequency').addEventListener('change', update);
+  function update(){const m=document.getElementById('positionModality').value;const f=document.getElementById('positionFrequency').value;renderAudience('Sócio',m,f);renderAudience('Não sócio',m,f);}
+  document.getElementById('positionModality').addEventListener('change',update);
+  document.getElementById('positionFrequency').addEventListener('change',update);
   update();
 })();
