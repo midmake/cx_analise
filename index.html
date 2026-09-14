@@ -70,11 +70,11 @@
         <article class="card competitors-current-card">
           <div class="section-head">
             <div><span class="eyebrow dark">CONCORRENTES</span><h2>Mensalidades atuais de 2026 dos concorrentes</h2></div>
-            <span class="hint">Sem estimativas: quando não há preço confirmado, o item fica identificado como pendente.</span>
+            <span class="hint">Uma linha por modalidade, público, plano e frequência. Valores sem estimativa.</span>
           </div>
           <div class="table-wrap current-market-wrap">
             <table id="currentCompetitorsTable" class="current-market-table">
-              <thead><tr><th>Clube</th><th>Atividades aquáticas</th><th>Vôlei</th><th>Situação / fonte</th></tr></thead>
+              <thead><tr><th>Clube</th><th>Modalidade</th><th>Público</th><th>Plano</th><th>Frequência</th><th>Valor</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -108,9 +108,8 @@
     </section>
 
     <section id="data" class="tab-panel">
-      <div class="grid-2">
-        <article class="card"><div class="section-head"><div><span class="eyebrow dark">PENDÊNCIAS</span><h2>Precisa contato</h2></div></div><div id="contactsList" class="contact-list"></div></article>
-        <article class="card"><div class="section-head"><div><span class="eyebrow dark">AUDITORIA</span><h2>Fontes e confiabilidade</h2></div></div><p class="muted">Valores sem confirmação não são estimados: ficam identificados como aguardando retorno do Administrativo — Setor de Esportes.</p><div id="sourceStats" class="source-stats"></div></article>
+      <div class="grid-2 audit-grid-single">
+        <article class="card"><div class="section-head"><div><span class="eyebrow dark">AUDITORIA</span><h2>Fontes e confiabilidade</h2></div></div><p class="muted">Base 2026 consolidada com os valores recebidos e as fontes já registradas. Sem estimativas.</p><div id="sourceStats" class="source-stats"></div></article>
       </div>
       <article class="card"><div class="section-head"><div><span class="eyebrow dark">BASE COMPLETA</span><h2>Dados filtrados</h2></div><div class="section-actions"><button id="exportCsv" class="btn secondary">Exportar CSV do recorte</button></div></div><div class="table-wrap"><table id="dataTable"><thead><tr><th>Ano da mensalidade</th><th>Arquivo de origem</th><th>Clube</th><th>Modalidade</th><th>Tipo/Categoria</th><th>Público</th><th>Frequência</th><th>Valor / situação</th><th>Status</th><th>Fonte</th></tr></thead><tbody></tbody></table></div></article>
     </section>
@@ -128,7 +127,6 @@
   <script src="data/records-6.js"></script>
   <script src="data/records-2024.js"></script>
   <script src="data/fixes.js"></script>
-  <script src="data/contact-raia-2026.js"></script>
   <script src="data/current-summary.js"></script>
   <script src="data/current-2026.js"></script>
   <script src="assets/app.js"></script>
