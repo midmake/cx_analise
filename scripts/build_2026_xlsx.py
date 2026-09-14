@@ -46,8 +46,9 @@ def load_current_rows():
     for path in CURRENT_FILES:
         fresh.extend(read_rows(path))
 
-    fresh_pairs = {(norm_club(r[1]), r[2]) for r in fresh}
-    fresh_volley_clubs = {norm_club(r[1]) for r in fresh if 'Vôlei' in str(r[2])}
+    replace_clubs = {'GNG','Gaúcho (CPG)','Geraldo Santana','Raia Center','Recreio da Juventude','SOGIPA','Stillo'}
+    fresh_pairs = {(norm_club(r[1]), r[2]) for r in fresh if norm_club(r[1]) in replace_clubs}
+    fresh_volley_clubs = {norm_club(r[1]) for r in fresh if norm_club(r[1]) in replace_clubs and 'Vôlei' in str(r[2])}
 
     kept = []
     for r in base:
