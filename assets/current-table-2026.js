@@ -65,6 +65,15 @@
   }
   const checked = document.getElementById('currentCheckedAt');
   if (checked) checked.textContent = 'Base revisada em 14/09/2026';
+  const badge = document.querySelector('.hero__badge strong');
+  if (badge) badge.textContent = '2026 — atualizado';
+  const refTitle = document.querySelector('.current-reference-card h2');
+  if (refTitle) refTitle.textContent = 'Caixeiros Viajantes — mensalidades atuais de 2026';
+  const reset = document.getElementById('resetFilters');
+  if (reset) reset.addEventListener('click', () => setTimeout(() => {
+    const year = document.getElementById('yearFilter');
+    if (year && [...year.options].some(o => o.value === '2026')) { year.value = '2026'; year.dispatchEvent(new Event('change',{bubbles:true})); }
+  }, 0));
 
   const style = document.createElement('style');
   style.textContent = `
