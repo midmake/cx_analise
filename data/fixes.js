@@ -1,35 +1,32 @@
 (() => {
   const data = window.DASHBOARD_DATA || {};
   const records = data.records || [];
-  const yearMap = { 2024: 2023, 2025: 2024, 2026: 2026 };
+  // Bases historicas: arquivo 2024 -> mensalidades 2023; arquivo 2025 -> mensalidades 2024;
+  // a base anterior carregada nos arquivos records-1..6 corresponde ao historico de 2025.
+  // Os valores atuais de 2026 sao carregados depois, em data/current-2026.js.
+  const yearMap = { 2024: 2023, 2025: 2024, 2026: 2025 };
 
   data.meta = data.meta || {};
-  data.meta.yearLogic = 'Arquivo 2024 = mensalidades de 2023 · Arquivo 2025 = mensalidades de 2024 · Arquivo 2026 = valores atuais de 2026';
-  data.meta.pendingLabel = 'Aguardando dados do Administrativo — Setor de Esportes';
+  data.meta.yearLogic = 'Mensalidades 2023, 2024 e 2025 permanecem no histórico · valores atuais de 2026 ficam no Arquivo 2026';
+  data.meta.pendingLabel = 'Sem valor registrado';
   data.meta.warning2024 = null;
 
   for (const r of records) {
     const sourceFileYear = Number(r.year);
+    const valueYear = yearMap[sourceFileYear] || sourceFileYear;
     r.sourceFileYear = sourceFileYear;
     r.researchYear = sourceFileYear;
-    r.valueYear = yearMap[sourceFileYear] || sourceFileYear;
-    r.year = r.valueYear;
+    r.valueYear = valueYear;
+    r.year = valueYear;
 
     if (r.club === 'Grêmio Náutico Gaúcho') r.club = 'GNG';
     if (r.club === 'Professor Gaúcho') r.club = 'Gaúcho (CPG)';
 
-    if ((sourceFileYear === 2024 || sourceFileYear === 2025) && typeof r.value === 'number') {
-      r.status = 'VALOR HISTÓRICO CONFIRMADO';
-    }
+    const status = String(r.status || '').toUpperCase();
+    const blocked = status.includes('DESATUALIZADO') || status.includes('NÃO LOCALIZADO') || status.includes('NECESSITA') || status.includes('A CONFIRMAR');
 
-    if (sourceFileYear === 2026 && typeof r.value === 'number') {
-      const s = String(r.status || '').toUpperCase();
-      const blocked = s.includes('DESATUALIZADO') || s.includes('NÃO LOCALIZADO') ||
-        s.includes('NECESSITA') || s.includes('A CONFIRMAR');
-      if (!blocked) r.status = 'CONFIRMADO ATUAL';
-    }
-
-    if (sourceFileYear === 2026 && String(r.status || '').toUpperCase().includes('DESATUALIZADO')) {
+    if (typeof r.value === 'number' && !blocked) r.status = 'VALOR HISTÓRICO CONFIRMADO';
+    if (blocked && sourceFileYear === 2026) {
       r.displayValue = r.value;
       r.value = null;
     }
